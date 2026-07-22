@@ -54,5 +54,169 @@
     <p>Entrando...</p>
   </div>
 
+  <script>
+    // ============================================================
+    // FALLBACK: Funções essenciais caso os scripts externos não carreguem
+    // ============================================================
+    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
+      salvar: function(obj) {
+        try { const a = this.ler(); localStorage.setItem('zelar_cadastro', JSON.stringify({...a, ...obj})); }
+        catch(e) {}
+      },
+      ler: function() {
+        try { const d = localStorage.getItem('zelar_cadastro'); return d ? JSON.parse(d) : {}; }
+        catch(e) { return {}; }
+      },
+      ir: function(url) {
+        document.body.classList.add('saindo');
+        setTimeout(() => { window.location.href = url; }, 300);
+      },
+      toast: function(msg, tipo) {
+        const t = document.getElementById('toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('visivel');
+        setTimeout(() => t.classList.remove('visivel'), 3000);
+      }
+    };
+
+    // ============================================================
+    // LÓGICA PRINCIPAL
+    // ============================================================
+    (function() {
+      const email = document.getElementById("email");
+      const senha = document.getElementById("senha");
+      const btn = document.getElementById("btn-entrar");
+      const form = document.getElementById("form-login");
+      const loading = document.getElementById("loading");
+
+      if (!email || !senha || !btn || !form) return;
+
+      // Restaura email salvo (se existir)
+      try {
+        const salvo = ZC.ler();
+        if (salvo && salvo.email) email.value = salvo.email;
+      } catch(e) {}
+
+      function validarEmail(emailStr) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr);
+      }
+
+      function validar() {
+        let okEmail = false, okSenha = false;
+
+        try { okEmail = validarEmail(email.value); } catch(e) {}
+        try { okSenha = senha.value.length >= 6; } catch(e) {}
+
+        // Marca visualmente
+        const erroEmail = document.getElementById("erro-email");
+        const erroSenha = document.getElementById("erro-senha");
+
+        if (okEmail) {
+          email.classList.remove('erro');
+          email.classList.add('ok');
+          if (erroEmail) erroEmail.style.display = 'none';
+        } else {
+          email.classList.remove('ok');
+          email.classList.add('erro');
+          if (erroEmail) erroEmail.style.display = 'block';
+        }
+
+        if (okSenha) {
+          senha.classList.remove('erro');
+          senha.classList.add('ok');
+          if (erroSenha) erroSenha.style.display = 'none';
+        } else {
+          senha.classList.remove('ok');
+          senha.classList.add('erro');
+          if (erroSenha) erroSenha.style.display = 'block';
+        }
+
+        const tudoOk = okEmail && okSenha;
+        btn.disabled = !tudoOk;
+        btn.style.opacity = tudoOk ? '1' : '0.5';
+        btn.style.cursor = tudoOk ? 'pointer' : 'not-allowed';
+      }
+
+      [email, senha].forEach((campo) => {
+        if (campo) {
+          campo.addEventListener("input", validar);
+          campo.addEventListener("change", validar);
+          campo.addEventListener("blur", validar);
+        }
+      });
+
+      form.addEventListener("submit", async function(e) {
+        e.preventDefault();
+        if (btn.disabled) return;
+
+        if (loading) loading.classList.add("visivel");
+
+        try {
+          // Tenta autenticar via API
+          let loginOk = false;
+          let token = null;
+
+          try {
+            const resp = await fetch("http://localhost:3000/api/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: email.value.trim(),
+                senha: senha.value
+              })
+            });
+
+            if (resp.ok) {
+              const data = await resp.json();
+              token = data.token;
+              loginOk = true;
+            }
+          } catch(apiErr) {
+            // Offline: tenta login local (modo demo)
+            const cadastro = ZC.ler();
+            if (cadastro && cadastro.email === email.value.trim() && cadastro.senha === senha.value) {
+              loginOk = true;
+              token = 'local-token-' + Date.now();
+            }
+          }
+
+          if (loading) loading.classList.remove("visivel");
+
+          if (loginOk) {
+            // Salva sessão
+            try {
+              ZC.salvar({
+                email: email.value.trim(),
+                token: token,
+                logado_em: new Date().toISOString()
+              });
+              localStorage.setItem('zelar_token', token);
+            } catch(e) {}
+
+            ZC.toast("Login realizado com sucesso!");
+            setTimeout(() => {
+              try { ZC.ir("../2-cliente/selecionar-atendimento.html"); }
+              catch(e) { window.location.href = "../2-cliente/selecionar-atendimento.html"; }
+            }, 1000);
+          } else {
+            ZC.toast("E-mail ou senha incorretos.");
+            senha.value = '';
+            validar();
+          }
+
+        } catch(err) {
+          if (loading) loading.classList.remove("visivel");
+          ZC.toast("Erro ao fazer login. Tente novamente.");
+          console.error(err);
+        }
+      });
+
+      // Estado inicial
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+      validar();
+    })();
+  </script>
 </body>
 </html>
