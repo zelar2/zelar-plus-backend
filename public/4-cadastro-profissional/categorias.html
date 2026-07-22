@@ -76,24 +76,86 @@
   </div>
 
   <script>
-    const cartoes = document.querySelectorAll("#grade-categorias .cartao-opcao");
-    const btn = document.getElementById("btn-continuar");
-    let escolha = null;
+    // ============================================================
+    // FALLBACK: ZelarCadastro caso o JS externo não carregue
+    // ============================================================
+    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
+      salvar: function(obj) {
+        try {
+          const atual = this.ler();
+          localStorage.setItem('zelar_cadastro', JSON.stringify({...atual, ...obj}));
+        } catch(e) {}
+      },
+      ler: function() {
+        try {
+          const dados = localStorage.getItem('zelar_cadastro');
+          return dados ? JSON.parse(dados) : {};
+        } catch(e) { return {}; }
+      },
+      ir: function(url) {
+        document.body.classList.add('saindo');
+        setTimeout(() => { window.location.href = url; }, 300);
+      }
+    };
 
-    cartoes.forEach((c) => {
-      c.addEventListener("click", () => {
-        cartoes.forEach((x) => x.classList.remove("selecionado"));
-        c.classList.add("selecionado");
-        escolha = { categoria: c.dataset.categoria, conselho: c.dataset.conselho };
-        btn.disabled = false;
+    // ============================================================
+    // LÓGICA PRINCIPAL
+    // ============================================================
+    (function() {
+      const cartoes = document.querySelectorAll("#grade-categorias .cartao-opcao");
+      const btn = document.getElementById("btn-continuar");
+      let escolha = null;
+
+      // Restaura seleção anterior se existir
+      try {
+        const dados = ZC.ler();
+        if (dados && dados.categoria) {
+          cartoes.forEach((c) => {
+            if (c.dataset.categoria === dados.categoria) {
+              c.classList.add("selecionado");
+              escolha = { categoria: c.dataset.categoria, conselho: c.dataset.conselho };
+              btn.disabled = false;
+              btn.style.opacity = '1';
+            }
+          });
+        }
+      } catch(e) {}
+
+      cartoes.forEach((c) => {
+        c.addEventListener("click", () => {
+          cartoes.forEach((x) => x.classList.remove("selecionado"));
+          c.classList.add("selecionado");
+          escolha = { categoria: c.dataset.categoria, conselho: c.dataset.conselho };
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+        });
       });
-    });
 
-    btn.addEventListener("click", () => {
-      if (!escolha) return;
-      ZelarCadastro.salvar({ categoria: escolha.categoria, conselho: escolha.conselho });
-      ZelarCadastro.ir("./dados.html");
-    });
+      btn.addEventListener("click", () => {
+        if (!escolha) return;
+        try {
+          ZC.salvar({ categoria: escolha.categoria, conselho: escolha.conselho });
+          ZC.ir("./dados.html");
+        } catch(e) {
+          // Fallback direto se ZC.ir falhar
+          try {
+            localStorage.setItem('zelar_cadastro', JSON.stringify({
+              ...JSON.parse(localStorage.getItem('zelar_cadastro') || '{}'),
+              categoria: escolha.categoria,
+              conselho: escolha.conselho
+            }));
+          } catch(err) {}
+          window.location.href = "./dados.html";
+        }
+      });
+
+      // Feedback visual inicial do botão
+      if (btn.disabled) {
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+      }
+    })();
   </script>
 </body>
 </html>
