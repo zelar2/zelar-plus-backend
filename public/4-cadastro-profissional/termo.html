@@ -4,34 +4,146 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>ZELAR+ - Termo de Parceria</title>
-  <style>
-    .termo-texto {
-      max-height: 300px;
-      overflow-y: auto;
-      background: rgba(0,0,0,.22);
-      border: 1px solid var(--vidro-borda);
-      border-radius: var(--raio-pq);
-      padding: 16px;
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--texto-suave);
-      margin-bottom: 16px;
-    }
-    .termo-texto h3 { color: var(--texto); font-size: 14px; margin: 12px 0 6px; }
-    .aceite {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 13px;
-      color: var(--texto-suave);
-      margin-bottom: 18px;
-      cursor: pointer;
-    }
-    .aceite input { width: 20px; height: 20px; accent-color: var(--acento); cursor: pointer; flex-shrink: 0; }
-  </style>
   <script type="module" crossorigin src="../assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
   <script type="module" crossorigin src="../assets/cadastro-CzP_A_lC.js"></script>
   <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
+  <style>
+    /* ============================================================
+       TERMOS DE PARCERIA - Estilos customizados
+       ============================================================ */
+
+    /* Container do termo com scroll suave */
+    .termo-container {
+      max-height: 320px;
+      overflow-y: auto;
+      background: rgba(0,0,0,.18);
+      border: 1px solid var(--vidro-borda);
+      border-radius: var(--raio-pq);
+      padding: 18px;
+      margin-bottom: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--acento) transparent;
+    }
+    .termo-container::-webkit-scrollbar { width: 4px; }
+    .termo-container::-webkit-scrollbar-track { background: transparent; }
+    .termo-container::-webkit-scrollbar-thumb { background: var(--acento); border-radius: 4px; }
+
+    /* Seções do termo */
+    .termo-secao {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .termo-secao:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .termo-secao h3 {
+      color: var(--acento);
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .termo-secao h3 .numero {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(0,212,170,0.15);
+      border: 1px solid var(--acento);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .termo-secao p {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--texto-suave);
+      margin: 0;
+    }
+    .termo-secao ul {
+      margin: 8px 0 0 0;
+      padding-left: 20px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--texto-suave);
+    }
+    .termo-secao ul li { margin-bottom: 6px; }
+    .termo-secao .destaque {
+      color: var(--texto);
+      font-weight: 600;
+    }
+
+    /* Aceite */
+    .aceite {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--texto-suave);
+      margin-bottom: 20px;
+      cursor: pointer;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .aceite:hover {
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(255,255,255,0.08);
+    }
+    .aceite input {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--acento);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .aceite.aceito {
+      border-color: var(--sucesso);
+      background: rgba(46,229,157,0.06);
+    }
+    .aceite.aceito span { color: var(--texto); }
+
+    /* Loading overlay */
+    .overlay-loading {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .overlay-loading.visivel { display: flex; }
+    .overlay-loading .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--acento);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+    .overlay-loading p {
+      color: var(--texto);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Toast fallback */
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--vidro, rgba(30,60,114,0.9)); color: var(--texto, #fff); padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); opacity: 0; transition: all 0.3s ease; z-index: 9999; backdrop-filter: blur(10px); font-size: 14px; }
+    .toast.visivel { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
 </head>
 <body>
   <div class="app-container">
@@ -51,28 +163,101 @@
 
     <div class="cartao brilho">
       <h1>Termo de parceria</h1>
-      <p class="descricao">Leia com atenção antes de finalizar</p>
+      <p class="descricao">Leia com atenção antes de finalizar seu cadastro</p>
 
-      <div class="termo-texto">
-        <h3>1. Objeto</h3>
-        <p>O ZELAR+ conecta profissionais de saúde autônomos a pacientes que necessitam de atendimento domiciliar ou por vídeo, atuando apenas como plataforma de intermediação.</p>
-        <h3>2. Responsabilidades do profissional</h3>
-        <p>O profissional declara possuir registro ativo no conselho de sua categoria, compromete-se a manter seus dados atualizados e a prestar os serviços com ética, pontualidade e respeito ao paciente.</p>
-        <h3>3. Repasses</h3>
-        <p>Os valores dos atendimentos realizados serão repassados semanalmente para a conta informada, já descontada a taxa de intermediação da plataforma.</p>
-        <h3>4. Cancelamentos</h3>
-        <p>Cancelamentos devem ser informados com antecedência mínima de 4 horas. Cancelamentos recorrentes podem acarretar suspensão do cadastro.</p>
-        <h3>5. Privacidade</h3>
-        <p>Os dados dos pacientes são confidenciais e protegidos pela LGPD (Lei nº 13.709/2018). É vedado o uso das informações para qualquer finalidade além do atendimento.</p>
-        <h3>6. Veracidade das informações</h3>
-        <p>O envio de documentos falsos ou informações incorretas implica o descadastramento imediato e as medidas legais cabíveis.</p>
+      <!-- Termo detalhado -->
+      <div class="termo-container" id="termo-scroll">
+        <div class="termo-secao">
+          <h3><span class="numero">1</span>Objeto da Parceria</h3>
+          <p>O <span class="destaque">ZELAR+</span> é uma plataforma digital de intermediação de serviços de saúde domiciliar e teleconsulta. Não somos empregadores: conectamos profissionais autônomos a pacientes que necessitam de cuidados em casa ou por vídeo.</p>
+        </div>
+
+        <div class="termo-secao">
+          <h3><span class="numero">2</span>Quem Pode Participar</h3>
+          <p>Podem se cadastrar profissionais de saúde com registro ativo no conselho de sua categoria (ou certificação válida, quando aplicável). É necessário:</p>
+          <ul>
+            <li>Ter idade mínima de 18 anos</li>
+            <li>Possuir documento de identidade válido</li>
+            <li>Ter registro ativo no conselho profissional (ou certificação)</li>
+            <li>Comprovar residência no Brasil</li>
+            <li>Ter conta bancária ou chave PIX em seu nome</li>
+          </ul>
+        </div>
+
+        <div class="termo-secao">
+          <h3><span class="numero">3</span>Responsabilidades do Profissional</h3>
+          <p>Ao usar a plataforma, você se compromete a:</p>
+          <ul>
+            <li>Manter seus dados cadastrais sempre atualizados</li>
+            <li>Prestar serviços com <span class="destaque">ética, pontualidade e respeito</span> ao paciente</li>
+            <li>Comparecer aos atendimentos agendados ou cancelar com antecedência</li>
+            <li>Usar equipamentos de proteção individual (EPIs) quando necessário</li>
+            <li>Respeitar a privacidade e sigilo profissional do paciente</li>
+            <li>Não solicitar pagamento direto ao paciente fora da plataforma</li>
+          </ul>
+        </div>
+
+        <div class="termo-secao">
+          <h3><span class="numero">4</span>Repasse de Ganhos</h3>
+          <p>Os valores dos atendimentos realizados serão repassados <span class="destaque">semanalmente</span> para a conta bancária ou chave PIX informada no cadastro. O valor já estará descontada a taxa de intermediação da plataforma ZELAR+.</p>
+          <p style="margin-top:8px">O repasse ocorre toda <span class="destaque">segunda-feira</span> referente aos atendimentos da semana anterior (segunda a domingo).</p>
+        </div>
+
+        <div class="termo-secao">
+          <h3><span class="numero">5</span>Cancelamentos e Faltas</h3>
+          <p>Cancelamentos devem ser informados com antecedência mínima de <span class="destaque">4 horas</span> antes do horário agendado. Faltas ou cancelamentos de última hora prejudicam o paciente e geram penalidades:</p>
+          <ul>
+            <li><strong>1ª ocorrência:</strong> Advertência</li>
+            <li><strong>2ª ocorrência:</strong> Suspensão de 7 dias</li>
+            <li><strong>3ª ocorrência:</strong> Descadastramento</li>
+          </ul>
+        </div>
+
+        <div class="termo-secao">
+          <h3><span class="numero">6</span>Privacidade e LGPD</h3>
+          <p>Todos os dados dos pacientes são <span class="destaque">confidenciais</span> e protegidos pela Lei Geral de Proteção de Dados (Lei nº 13.709/2018). É terminantemente vedado:</p>
+          <ul>
+            <li>Compartilhar dados de pacientes com terceiros</li>
+            <li>Usar informações para fins de marketing</li>
+            <li>Fotografar ou filmar o paciente sem autorização expressa</li>
+            <li>Armazenar dados em dispositivos pessoais não seguros</li>
+          </ul>
+        </div>
+
+        <div class="termo-secao">
+          <h3><span class="numero">7</span>Veracidade das Informações</h3>
+          <p>O envio de documentos falsos, informações incorretas ou registro profissional suspenso/cancelado implica o <span class="destaque">descadastramento imediato</span> e as medidas legais cabíveis. O ZELAR+ se reserva o direito de verificar a veracidade dos dados a qualquer momento.</p>
+        </div>
+
+        <div class="termo-secao">
+          <h3><span class="numero">8</span>Responsabilidade da Plataforma</h3>
+          <p>O ZELAR+ atua apenas como intermediador. Não nos responsabilizamos por:</p>
+          <ul>
+            <li>Conduta profissional do prestador de serviço</li>
+            <li>Diagnósticos, tratamentos ou procedimentos realizados</li>
+            <li>Danos causados por negligência ou imperícia do profissional</li>
+            <li>Eventuais desentendimentos entre profissional e paciente</li>
+          </ul>
+        </div>
+
+        <div class="termo-secao">
+          <h3><span class="numero">9</span>Alterações no Termo</h3>
+          <p>O ZELAR+ poderá alterar este termo a qualquer momento, comunicando os profissionais cadastrados com antecedência mínima de 15 dias. O uso continuado da plataforma após a alteração implica aceitação dos novos termos.</p>
+        </div>
+
+        <div class="termo-secao">
+          <h3><span class="numero">10</span>Contato</h3>
+          <p>Em caso de dúvidas, entre em contato pelo e-mail <span class="destaque">suporte@zelarplus.com.br</span> ou pelo WhatsApp (11) 99999-9999. Nosso horário de atendimento é de segunda a sexta, das 8h às 18h.</p>
+        </div>
       </div>
 
-      <label class="aceite">
+      <!-- Aceite -->
+      <label class="aceite" id="label-aceite">
         <input type="checkbox" id="aceito" />
-        <span>Li e aceito o termo de parceria e a política de privacidade do ZELAR+.</span>
+        <span>Li e aceito integralmente o termo de parceria, a política de privacidade e as condições de uso da plataforma ZELAR+.</span>
       </label>
 
+      <!-- Botões -->
       <div class="linha">
         <button class="botao secundario" id="btn-voltar">Voltar</button>
         <button class="botao" id="btn-finalizar" disabled>Finalizar cadastro</button>
@@ -81,39 +266,106 @@
   </div>
 
   <div class="toast" id="toast"></div>
-  <div class="overlay-loading" id="loading"><div class="spinner"></div><p>Enviando cadastro...</p></div>
+  <div class="overlay-loading" id="loading">
+    <div class="spinner"></div>
+    <p>Enviando cadastro...</p>
+  </div>
 
   <script>
-    const aceito = document.getElementById("aceito");
-    const btn = document.getElementById("btn-finalizar");
+    // ============================================================
+    // FALLBACK: ZelarCadastro caso o JS externo não carregue
+    // ============================================================
+    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
+      ler: function() {
+        try { const d = localStorage.getItem('zelar_cadastro'); return d ? JSON.parse(d) : {}; }
+        catch(e) { return {}; }
+      },
+      salvar: function(obj) {
+        try { const a = this.ler(); localStorage.setItem('zelar_cadastro', JSON.stringify({...a, ...obj})); }
+        catch(e) {}
+      },
+      ir: function(url) {
+        document.body.classList.add('saindo');
+        setTimeout(() => { window.location.href = url; }, 300);
+      },
+      toast: function(msg, tipo) {
+        const t = document.getElementById('toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('visivel');
+        setTimeout(() => t.classList.remove('visivel'), 3000);
+      },
+      limpar: function() {
+        try { localStorage.removeItem('zelar_cadastro'); }
+        catch(e) {}
+      }
+    };
 
-    aceito.addEventListener("change", () => (btn.disabled = !aceito.checked));
+    // ============================================================
+    // LÓGICA PRINCIPAL
+    // ============================================================
+    (function() {
+      const aceito = document.getElementById("aceito");
+      const btn = document.getElementById("btn-finalizar");
+      const labelAceite = document.getElementById("label-aceite");
+      const btnVoltar = document.getElementById("btn-voltar");
+      const loading = document.getElementById("loading");
 
-    btn.addEventListener("click", async () => {
-      if (!aceito.checked) return;
-      const cadastro = ZelarCadastro.ler();
-      cadastro.aceitou_termo = true;
-      cadastro.enviado_em = new Date().toISOString();
-      ZelarCadastro.salvar(cadastro);
+      if (!aceito || !btn) return;
 
-      document.getElementById("loading").classList.add("visivel");
+      // Habilita/desabilita botão conforme checkbox
+      aceito.addEventListener("change", () => {
+        btn.disabled = !aceito.checked;
+        btn.style.opacity = aceito.checked ? '1' : '0.5';
+        btn.style.cursor = aceito.checked ? 'pointer' : 'not-allowed';
+        if (labelAceite) {
+          labelAceite.classList.toggle('aceito', aceito.checked);
+        }
+      });
 
-      // Envia para a API (se disponível); segue mesmo offline
-      try {
-        await fetch("http://localhost:3000/api/profissionais", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(cadastro)
-        }).catch(() => null);
-      } catch (e) { /* offline: cadastro fica salvo localmente */ }
+      // Finalizar cadastro
+      btn.addEventListener("click", async () => {
+        if (!aceito.checked) return;
 
-      setTimeout(() => {
-        document.getElementById("loading").classList.remove("visivel");
-        ZelarCadastro.ir("./enviado.html");
-      }, 1200);
-    });
+        try {
+          const cadastro = ZC.ler();
+          cadastro.aceitou_termo = true;
+          cadastro.enviado_em = new Date().toISOString();
+          ZC.salvar(cadastro);
+        } catch(e) {
+          console.error('Erro ao salvar aceite:', e);
+        }
 
-    document.getElementById("btn-voltar").addEventListener("click", () => ZelarCadastro.ir("./repasse.html"));
+        if (loading) loading.classList.add("visivel");
+
+        // Envia para a API (se disponível); segue mesmo offline
+        try {
+          await fetch("http://localhost:3000/api/profissionais", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(ZC.ler())
+          }).catch(() => null);
+        } catch (e) { /* offline: cadastro fica salvo localmente */ }
+
+        setTimeout(() => {
+          if (loading) loading.classList.remove("visivel");
+          try { ZC.ir("./enviado.html"); }
+          catch(e) { window.location.href = "./enviado.html"; }
+        }, 1200);
+      });
+
+      // Botão voltar
+      if (btnVoltar) {
+        btnVoltar.addEventListener("click", () => {
+          try { ZC.ir("./repasse.html"); }
+          catch(e) { window.location.href = "./repasse.html"; }
+        });
+      }
+
+      // Estado inicial do botão
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    })();
   </script>
 </body>
 </html>
