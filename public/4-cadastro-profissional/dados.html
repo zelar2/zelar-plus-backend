@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ZELAR+ - Dados Profissionais</title>
+  <script type="module" crossorigin src="../assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="../assets/cadastro-CzP_A_lC.js"></script>
+  <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
+</head>
+<body>
+  <div class="app-container">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3l9-8z"/></svg>
+      </div>
+      <div class="logo-texto">ZELAR<span>+</span></div>
+    </div>
+    <p class="subtitulo" id="subtitulo-categoria">Dados Profissionais</p>
+
+    <div class="progresso">
+      <div class="dot feito"></div>
+      <div class="dot ativo"></div>
+      <div class="dot"></div>
+    </div>
+
+    <div class="cartao brilho">
+      <h1>Seus dados</h1>
+      <p class="descricao">Informe seus dados profissionais</p>
+
+      <form id="form-dados" novalidate>
+        <div class="grupo">
+          <label for="nome">Nome completo</label>
+          <input type="text" id="nome" class="campo" placeholder="Seu nome completo" autocomplete="name" />
+          <span class="msg-erro" id="erro-nome">Informe seu nome completo.</span>
+        </div>
+
+        <div class="grupo">
+          <label for="cpf">CPF</label>
+          <input type="text" id="cpf" class="campo" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" />
+          <span class="msg-erro" id="erro-cpf">CPF inválido.</span>
+        </div>
+
+        <div class="grupo">
+          <label for="telefone">Telefone</label>
+          <input type="tel" id="telefone" class="campo" placeholder="(00) 00000-0000" inputmode="numeric" maxlength="15" />
+          <span class="msg-erro" id="erro-telefone">Telefone inválido.</span>
+        </div>
+
+        <div class="linha">
+          <div class="grupo">
+            <label for="conselho" id="label-conselho">Número do conselho</label>
+            <input type="text" id="conselho" class="campo" placeholder="Ex.: 123456" inputmode="numeric" />
+            <span class="msg-erro" id="erro-conselho">Informe o número do conselho.</span>
+          </div>
+          <div class="grupo" style="max-width:110px">
+            <label for="uf">UF</label>
+            <select id="uf" class="campo">
+              <option value="">UF</option>
+              <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+              <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+              <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+              <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+              <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+              <option>SP</option><option>SE</option><option>TO</option>
+            </select>
+            <span class="msg-erro" id="erro-uf">Selecione.</span>
+          </div>
+        </div>
+
+        <div class="linha">
+          <button type="button" class="botao secundario" id="btn-voltar">Voltar</button>
+          <button type="submit" class="botao" id="btn-continuar" disabled>Continuar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Personaliza com a categoria escolhida
+    const cadastro = ZelarCadastro.ler();
+    if (cadastro.categoria) {
+      document.getElementById("subtitulo-categoria").textContent = cadastro.categoria;
+      document.getElementById("label-conselho").textContent =
+        cadastro.conselho === "Não exige conselho" ? "Nº do certificado" : `Número do ${cadastro.conselho || "conselho"}`;
+    }
+
+    const nome = document.getElementById("nome");
+    const cpf = document.getElementById("cpf");
+    const telefone = document.getElementById("telefone");
+    const conselho = document.getElementById("conselho");
+    const uf = document.getElementById("uf");
+    const btn = document.getElementById("btn-continuar");
+
+    ZelarCadastro.mascaraCPF(cpf);
+    ZelarCadastro.mascaraTelefone(telefone);
+
+    // Restaura dados salvos
+    if (cadastro.nome) nome.value = cadastro.nome;
+    if (cadastro.cpf) cpf.value = cadastro.cpf;
+    if (cadastro.telefone) telefone.value = cadastro.telefone;
+    if (cadastro.conselho_numero) conselho.value = cadastro.conselho_numero;
+    if (cadastro.uf) uf.value = cadastro.uf;
+
+    function validar() {
+      const okNome = nome.value.trim().split(/\s+/).length >= 2;
+      const okCpf = ZelarCadastro.cpfValido(cpf.value);
+      const okFone = telefone.value.replace(/\D/g, "").length >= 10;
+      const okConselho = conselho.value.trim().length >= 3;
+      const okUf = uf.value !== "";
+
+      ZelarCadastro.marcar(nome, "erro-nome", okNome);
+      ZelarCadastro.marcar(cpf, "erro-cpf", okCpf);
+      ZelarCadastro.marcar(telefone, "erro-telefone", okFone);
+      ZelarCadastro.marcar(conselho, "erro-conselho", okConselho);
+      ZelarCadastro.marcar(uf, "erro-uf", okUf);
+
+      btn.disabled = !(okNome && okCpf && okFone && okConselho && okUf);
+    }
+
+    [nome, cpf, telefone, conselho, uf].forEach((c) => {
+      c.addEventListener("input", validar);
+      c.addEventListener("change", validar);
+    });
+
+    document.getElementById("form-dados").addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (btn.disabled) return;
+      ZelarCadastro.salvar({
+        nome: nome.value.trim(),
+        cpf: cpf.value,
+        telefone: telefone.value,
+        conselho_numero: conselho.value.trim(),
+        uf: uf.value
+      });
+      ZelarCadastro.ir("./documentos.html");
+    });
+
+    document.getElementById("btn-voltar").addEventListener("click", () => {
+      ZelarCadastro.ir("./categorias.html");
+    });
+
+    validar();
+  </script>
+</body>
+</html>

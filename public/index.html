@@ -2,25 +2,43 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZELAR+ API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ZELAR+</title>
   <style>
-    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      font-family: 'Segoe UI', Roboto, sans-serif; color: #fff;
-      background: linear-gradient(160deg, #1e3c72, #2a5298); }
-    .card { text-align: center; padding: 40px; border-radius: 18px;
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
-      backdrop-filter: blur(12px); }
-    h1 { margin: 0 0 8px; } h1 span { color: #00d4aa; }
-    p { color: rgba(255,255,255,.72); margin: 6px 0; }
-    code { background: rgba(0,0,0,.3); padding: 3px 10px; border-radius: 8px; color: #00d4aa; }
+    .splash {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+    .splash .logo-icon { width: 84px; height: 84px; border-radius: 24px; }
+    .splash .logo-icon svg { width: 48px; height: 48px; }
+    .splash .logo-texto { font-size: 42px; }
+    .splash p { color: var(--texto-suave); font-size: 14px; }
   </style>
+  <link rel="stylesheet" crossorigin href="./assets/global-DWT78tNl.css">
 </head>
 <body>
-  <div class="card">
-    <h1>ZELAR<span>+</span> API</h1>
-    <p>Servidor no ar ✅</p>
-    <p>Status em <code>GET /api</code></p>
+  <div class="app-container">
+    <div class="splash">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3l9-8z"/></svg>
+      </div>
+      <div class="logo-texto">ZELAR<span>+</span></div>
+      <p>Cuidado profissional na sua casa</p>
+      <div class="spinner"></div>
+    </div>
   </div>
+
+  <script>
+    setTimeout(() => {
+      document.body.classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = './1-login/index.html';
+      }, 350);
+    }, 1400);
+  </script>
 </body>
 </html>
