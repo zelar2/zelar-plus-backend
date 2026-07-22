@@ -65,49 +65,118 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const banco = document.getElementById("banco");
-    const agencia = document.getElementById("agencia");
-    const conta = document.getElementById("conta");
-    const pix = document.getElementById("pix");
-    const btn = document.getElementById("btn-continuar");
+    // ============================================================
+    // FALLBACK: ZelarCadastro caso o JS externo não carregue
+    // ============================================================
+    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
+      ler: function() {
+        try { const d = localStorage.getItem('zelar_cadastro'); return d ? JSON.parse(d) : {}; }
+        catch(e) { return {}; }
+      },
+      salvar: function(obj) {
+        try { const a = this.ler(); localStorage.setItem('zelar_cadastro', JSON.stringify({...a, ...obj})); }
+        catch(e) {}
+      },
+      ir: function(url) {
+        document.body.classList.add('saindo');
+        setTimeout(() => { window.location.href = url; }, 300);
+      },
+      marcar: function(input, erroId, valido) {
+        const erro = document.getElementById(erroId);
+        if (valido) {
+          input.classList.remove('erro');
+          input.classList.add('ok');
+          if (erro) erro.style.display = 'none';
+        } else {
+          input.classList.remove('ok');
+          input.classList.add('erro');
+          if (erro) erro.style.display = 'block';
+        }
+      }
+    };
 
-    const salvo = ZelarCadastro.ler();
-    if (salvo.banco) banco.value = salvo.banco;
-    if (salvo.agencia) agencia.value = salvo.agencia;
-    if (salvo.conta) conta.value = salvo.conta;
-    if (salvo.pix) pix.value = salvo.pix;
+    // ============================================================
+    // LÓGICA PRINCIPAL
+    // ============================================================
+    (function() {
+      const banco = document.getElementById("banco");
+      const agencia = document.getElementById("agencia");
+      const conta = document.getElementById("conta");
+      const pix = document.getElementById("pix");
+      const btn = document.getElementById("btn-continuar");
+      const form = document.getElementById("form-repasse");
+      const btnVoltar = document.getElementById("btn-voltar");
 
-    function validar() {
-      const okBanco = banco.value.trim().length >= 2;
-      const okAg = agencia.value.replace(/\D/g, "").length >= 3;
-      const okConta = conta.value.replace(/\D/g, "").length >= 4;
-      const okPix = pix.value.trim().length >= 5;
+      if (!banco || !agencia || !conta || !pix || !btn) return;
 
-      ZelarCadastro.marcar(banco, "erro-banco", okBanco);
-      ZelarCadastro.marcar(agencia, "erro-agencia", okAg);
-      ZelarCadastro.marcar(conta, "erro-conta", okConta);
-      ZelarCadastro.marcar(pix, "erro-pix", okPix);
+      // Restaura dados salvos
+      try {
+        const salvo = ZC.ler();
+        if (salvo) {
+          if (salvo.banco) banco.value = salvo.banco;
+          if (salvo.agencia) agencia.value = salvo.agencia;
+          if (salvo.conta) conta.value = salvo.conta;
+          if (salvo.pix) pix.value = salvo.pix;
+        }
+      } catch(e) {}
 
-      btn.disabled = !(okBanco && okAg && okConta && okPix);
-    }
+      function validar() {
+        let okBanco = false, okAg = false, okConta = false, okPix = false;
 
-    [banco, agencia, conta, pix].forEach((c) => c.addEventListener("input", validar));
+        try { okBanco = banco.value.trim().length >= 2; } catch(e) { okBanco = false; }
+        try { okAg = agencia.value.replace(/\D/g, "").length >= 3; } catch(e) { okAg = false; }
+        try { okConta = conta.value.replace(/\D/g, "").length >= 4; } catch(e) { okConta = false; }
+        try { okPix = pix.value.trim().length >= 5; } catch(e) { okPix = false; }
 
-    document.getElementById("form-repasse").addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (btn.disabled) return;
-      ZelarCadastro.salvar({
-        banco: banco.value.trim(),
-        agencia: agencia.value.trim(),
-        conta: conta.value.trim(),
-        pix: pix.value.trim()
+        try {
+          ZC.marcar(banco, "erro-banco", okBanco);
+          ZC.marcar(agencia, "erro-agencia", okAg);
+          ZC.marcar(conta, "erro-conta", okConta);
+          ZC.marcar(pix, "erro-pix", okPix);
+        } catch(e) {}
+
+        const tudoOk = okBanco && okAg && okConta && okPix;
+        btn.disabled = !tudoOk;
+        btn.style.opacity = tudoOk ? '1' : '0.5';
+        btn.style.cursor = tudoOk ? 'pointer' : 'not-allowed';
+      }
+
+      [banco, agencia, conta, pix].forEach((c) => {
+        if (c) {
+          c.addEventListener("input", validar);
+          c.addEventListener("change", validar);
+          c.addEventListener("blur", validar);
+        }
       });
-      ZelarCadastro.ir("./termo.html");
-    });
 
-    document.getElementById("btn-voltar").addEventListener("click", () => ZelarCadastro.ir("./foto.html"));
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (btn.disabled) return;
+          try {
+            ZC.salvar({
+              banco: banco.value.trim(),
+              agencia: agencia.value.trim(),
+              conta: conta.value.trim(),
+              pix: pix.value.trim()
+            });
+            ZC.ir("./termo.html");
+          } catch(err) {
+            console.error('Erro ao salvar:', err);
+            alert('Erro ao salvar dados. Tente novamente.');
+          }
+        });
+      }
 
-    validar();
+      if (btnVoltar) {
+        btnVoltar.addEventListener("click", () => {
+          try { ZC.ir("./foto.html"); }
+          catch(e) { window.location.href = "./foto.html"; }
+        });
+      }
+
+      validar();
+    })();
   </script>
 </body>
 </html>
