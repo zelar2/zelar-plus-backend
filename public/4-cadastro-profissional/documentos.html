@@ -9,7 +9,7 @@
   <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
   <style>
     /* ============================================================
-       NOVO FLUXO DE DOCUMENTOS - Moderno e Limpo
+       FLUXO DE DOCUMENTOS - Moderno e Limpo
        ============================================================ */
 
     /* Container do fluxo */
@@ -385,7 +385,7 @@
 
   <script>
     // ============================================================
-    // FALLBACK de ZelarCadastro
+    // FALLBACK: ZelarCadastro caso o JS externo não carregue
     // ============================================================
     const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
       ler: function() {
@@ -460,6 +460,7 @@
     const resumoEl = document.getElementById('resumo-docs');
     const barraGeral = document.getElementById('barra-geral');
     const btnContinuar = document.getElementById('btn-continuar');
+    const btnVoltar = document.getElementById('btn-voltar');
     const stepsIndicator = document.getElementById('steps-indicator');
 
     // ============================================================
@@ -497,6 +498,7 @@
     }
 
     function renderizarResumo() {
+      if (!resumoEl) return;
       resumoEl.innerHTML = DOCS.map((doc, i) => {
         const feito = !!enviados[doc.id];
         const ativo = i === docAtual;
@@ -521,6 +523,7 @@
     }
 
     function atualizarSteps() {
+      if (!stepsIndicator) return;
       const dots = stepsIndicator.querySelectorAll('.step-dot');
       dots.forEach((dot, i) => {
         dot.className = 'step-dot';
@@ -531,6 +534,7 @@
     }
 
     function atualizarBarraGeral() {
+      if (!barraGeral) return;
       const obrigatorios = DOCS.filter(d => d.obrigatorio);
       const obrigatoriosEnviados = obrigatorios.filter(d => enviados[d.id]).length;
       const pct = (obrigatoriosEnviados / obrigatorios.length) * 100;
@@ -538,34 +542,38 @@
     }
 
     function atualizarNavegacao() {
-      navAnt.disabled = docAtual === 0;
-      navProx.disabled = docAtual === DOCS.length - 1;
+      if (navAnt) navAnt.disabled = docAtual === 0;
+      if (navProx) navProx.disabled = docAtual === DOCS.length - 1;
 
       const doc = DOCS[docAtual];
       const temDoc = !!enviados[doc.id];
-      docNome.textContent = doc.nome;
-      docStatus.textContent = temDoc ? '✓ Documento enviado' : (doc.obrigatorio ? 'Toque para enviar • Obrigatório' : 'Toque para enviar • Opcional');
-      docStatus.className = 'doc-atual-status' + (temDoc ? ' ok' : '');
+      if (docNome) docNome.textContent = doc.nome;
+      if (docStatus) {
+        docStatus.textContent = temDoc ? '✓ Documento enviado' : (doc.obrigatorio ? 'Toque para enviar • Obrigatório' : 'Toque para enviar • Opcional');
+        docStatus.className = 'doc-atual-status' + (temDoc ? ' ok' : '');
+      }
     }
 
     function atualizarBotaoContinuar() {
+      if (!btnContinuar) return;
       const obrigatoriosOk = DOCS.filter(d => d.obrigatorio).every(d => enviados[d.id]);
       btnContinuar.disabled = !obrigatoriosOk;
       btnContinuar.style.opacity = obrigatoriosOk ? '1' : '0.5';
+      btnContinuar.style.cursor = obrigatoriosOk ? 'pointer' : 'not-allowed';
     }
 
     function atualizarTela() {
       const doc = DOCS[docAtual];
-      fluxoEl.innerHTML = renderizarCard(doc, docAtual);
+      if (fluxoEl) fluxoEl.innerHTML = renderizarCard(doc, docAtual);
 
       // Evento de upload
-      const input = fluxoEl.querySelector('input[type="file"]');
+      const input = fluxoEl ? fluxoEl.querySelector('input[type="file"]') : null;
       if (input) {
         input.addEventListener('change', (e) => handleUpload(e, doc));
       }
 
       // Evento de remover
-      const btnRemover = fluxoEl.querySelector('.btn-remover-preview');
+      const btnRemover = fluxoEl ? fluxoEl.querySelector('.btn-remover-preview') : null;
       if (btnRemover) {
         btnRemover.addEventListener('click', (e) => {
           e.preventDefault();
@@ -629,30 +637,38 @@
     // ============================================================
     // EVENT LISTENERS
     // ============================================================
-    navAnt.addEventListener('click', () => {
-      if (docAtual > 0) {
-        docAtual--;
-        atualizarTela();
-      }
-    });
+    if (navAnt) {
+      navAnt.addEventListener('click', () => {
+        if (docAtual > 0) {
+          docAtual--;
+          atualizarTela();
+        }
+      });
+    }
 
-    navProx.addEventListener('click', () => {
-      if (docAtual < DOCS.length - 1) {
-        docAtual++;
-        atualizarTela();
-      }
-    });
+    if (navProx) {
+      navProx.addEventListener('click', () => {
+        if (docAtual < DOCS.length - 1) {
+          docAtual++;
+          atualizarTela();
+        }
+      });
+    }
 
-    btnContinuar.addEventListener('click', () => {
-      if (btnContinuar.disabled) return;
-      try { ZC.ir('./foto.html'); }
-      catch(e) { window.location.href = './foto.html'; }
-    });
+    if (btnContinuar) {
+      btnContinuar.addEventListener('click', () => {
+        if (btnContinuar.disabled) return;
+        try { ZC.ir('./foto.html'); }
+        catch(e) { window.location.href = './foto.html'; }
+      });
+    }
 
-    document.getElementById('btn-voltar').addEventListener('click', () => {
-      try { ZC.ir('./dados.html'); }
-      catch(e) { window.location.href = './dados.html'; }
-    });
+    if (btnVoltar) {
+      btnVoltar.addEventListener('click', () => {
+        try { ZC.ir('./dados.html'); }
+        catch(e) { window.location.href = './dados.html'; }
+      });
+    }
 
     // ============================================================
     // INICIALIZAÇÃO
