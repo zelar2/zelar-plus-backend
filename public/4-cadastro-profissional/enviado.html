@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>ZELAR+ - Cadastro Enviado</title>
+  <script type="module" crossorigin src="../assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="../assets/cadastro-CzP_A_lC.js"></script>
+  <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
   <style>
     .icone-grande {
       width: 96px; height: 96px; margin: 14px auto 20px; border-radius: 50%;
@@ -18,10 +21,11 @@
       background: rgba(0,212,170,.16); border: 1px solid var(--acento);
       display: flex; align-items: center; justify-content: center; font-size: 14px;
     }
+    .etapa-analise.feito .bolinha {
+      background: rgba(46,229,157,.2);
+      border-color: var(--sucesso);
+    }
   </style>
-  <script type="module" crossorigin src="../assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
-  <script type="module" crossorigin src="../assets/cadastro-CzP_A_lC.js"></script>
-  <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
 </head>
 <body>
   <div class="app-container">
@@ -39,7 +43,7 @@
 
       <div class="divisor"></div>
 
-      <div class="etapa-analise">
+      <div class="etapa-analise feito">
         <div class="bolinha">✓</div>
         <div><strong>Cadastro recebido</strong><br/><span class="texto-suave" style="font-size:12px">Dados e documentos enviados</span></div>
       </div>
@@ -57,16 +61,59 @@
   </div>
 
   <script>
-    const cadastro = ZelarCadastro.ler();
-    if (cadastro.nome) {
-      const primeiro = cadastro.nome.split(" ")[0];
-      document.getElementById("msg-personalizada").textContent =
-        `${primeiro}, recebemos seu cadastro como ${cadastro.categoria || "profissional"}. Nossa equipe vai analisar seus documentos.`;
-    }
-    document.getElementById("btn-voltar-inicio").addEventListener("click", () => {
-      ZelarCadastro.limpar();
-      ZelarCadastro.ir("../index.html");
-    });
+    // ============================================================
+    // FALLBACK: ZelarCadastro caso o JS externo não carregue
+    // ============================================================
+    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
+      ler: function() {
+        try { const d = localStorage.getItem('zelar_cadastro'); return d ? JSON.parse(d) : {}; }
+        catch(e) { return {}; }
+      },
+      salvar: function(obj) {
+        try { const a = this.ler(); localStorage.setItem('zelar_cadastro', JSON.stringify({...a, ...obj})); }
+        catch(e) {}
+      },
+      ir: function(url) {
+        document.body.classList.add('saindo');
+        setTimeout(() => { window.location.href = url; }, 300);
+      },
+      limpar: function() {
+        try { localStorage.removeItem('zelar_cadastro'); }
+        catch(e) {}
+      }
+    };
+
+    // ============================================================
+    // LÓGICA PRINCIPAL
+    // ============================================================
+    (function() {
+      const msgEl = document.getElementById("msg-personalizada");
+      const btnVoltar = document.getElementById("btn-voltar-inicio");
+
+      // Personaliza mensagem com nome e categoria
+      try {
+        const cadastro = ZC.ler();
+        if (cadastro && cadastro.nome && msgEl) {
+          const primeiro = cadastro.nome.split(" ")[0];
+          msgEl.textContent =
+            `${primeiro}, recebemos seu cadastro como ${cadastro.categoria || "profissional"}. Nossa equipe vai analisar seus documentos.`;
+        }
+      } catch(e) {}
+
+      // Botão voltar ao início
+      if (btnVoltar) {
+        btnVoltar.addEventListener("click", () => {
+          try {
+            ZC.limpar();
+            ZC.ir("../index.html");
+          } catch(e) {
+            // Fallback: limpa e redireciona direto
+            try { localStorage.removeItem('zelar_cadastro'); } catch(err) {}
+            window.location.href = "../index.html";
+          }
+        });
+      }
+    })();
   </script>
 </body>
 </html>
