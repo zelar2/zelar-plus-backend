@@ -81,7 +81,7 @@
 
   <script>
     // ============================================================
-    // FALLBACK: Funções essenciais caso ZelarCadastro não carregue
+    // FALLBACK: ZelarCadastro caso o JS externo não carregue
     // ============================================================
     const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
       ler: function() {
@@ -164,9 +164,13 @@
       } catch(e) { cadastro = {}; }
 
       if (cadastro && cadastro.categoria) {
-        document.getElementById("subtitulo-categoria").textContent = cadastro.categoria;
-        document.getElementById("label-conselho").textContent =
-          cadastro.conselho === "Não exige conselho" ? "Nº do certificado" : `Número do ${cadastro.conselho || "conselho"}`;
+        const subtitulo = document.getElementById("subtitulo-categoria");
+        const labelConselho = document.getElementById("label-conselho");
+        if (subtitulo) subtitulo.textContent = cadastro.categoria;
+        if (labelConselho) {
+          labelConselho.textContent =
+            cadastro.conselho === "Não exige conselho" ? "Nº do certificado" : `Número do ${cadastro.conselho || "conselho"}`;
+        }
       }
 
       const nome = document.getElementById("nome");
@@ -178,63 +182,58 @@
 
       // Aplica máscaras
       try {
-        ZC.mascaraCPF(cpf);
-        ZC.mascaraTelefone(telefone);
+        if (cpf) ZC.mascaraCPF(cpf);
+        if (telefone) ZC.mascaraTelefone(telefone);
       } catch(e) {
         console.warn('Erro ao aplicar máscaras:', e);
       }
 
       // Restaura dados salvos
-      if (cadastro.nome) nome.value = cadastro.nome;
-      if (cadastro.cpf) cpf.value = cadastro.cpf;
-      if (cadastro.telefone) telefone.value = cadastro.telefone;
-      if (cadastro.conselho_numero) conselho.value = cadastro.conselho_numero;
-      if (cadastro.uf) uf.value = cadastro.uf;
+      if (cadastro.nome && nome) nome.value = cadastro.nome;
+      if (cadastro.cpf && cpf) cpf.value = cadastro.cpf;
+      if (cadastro.telefone && telefone) telefone.value = cadastro.telefone;
+      if (cadastro.conselho_numero && conselho) conselho.value = cadastro.conselho_numero;
+      if (cadastro.uf && uf) uf.value = cadastro.uf;
 
       function validar() {
-        let okNome, okCpf, okFone, okConselho, okUf;
+        let okNome = false, okCpf = false, okFone = false, okConselho = false, okUf = false;
 
         try {
-          okNome = nome.value.trim().split(/\s+/).length >= 2 && nome.value.trim().length > 3;
+          okNome = nome && nome.value.trim().split(/\s+/).length >= 2 && nome.value.trim().length > 3;
         } catch(e) { okNome = false; }
 
         try {
-          okCpf = ZC.cpfValido(cpf.value);
+          okCpf = cpf && ZC.cpfValido(cpf.value);
         } catch(e) { okCpf = false; }
 
         try {
-          okFone = telefone.value.replace(/\D/g, "").length >= 10;
+          okFone = telefone && telefone.value.replace(/\D/g, "").length >= 10;
         } catch(e) { okFone = false; }
 
         try {
-          okConselho = conselho.value.trim().length >= 3;
+          okConselho = conselho && conselho.value.trim().length >= 3;
         } catch(e) { okConselho = false; }
 
         try {
-          okUf = uf.value !== "";
+          okUf = uf && uf.value !== "";
         } catch(e) { okUf = false; }
 
         // Marca visualmente os campos
         try {
-          ZC.marcar(nome, "erro-nome", okNome);
-          ZC.marcar(cpf, "erro-cpf", okCpf);
-          ZC.marcar(telefone, "erro-telefone", okFone);
-          ZC.marcar(conselho, "erro-conselho", okConselho);
-          ZC.marcar(uf, "erro-uf", okUf);
+          if (nome) ZC.marcar(nome, "erro-nome", okNome);
+          if (cpf) ZC.marcar(cpf, "erro-cpf", okCpf);
+          if (telefone) ZC.marcar(telefone, "erro-telefone", okFone);
+          if (conselho) ZC.marcar(conselho, "erro-conselho", okConselho);
+          if (uf) ZC.marcar(uf, "erro-uf", okUf);
         } catch(e) {
           console.warn('Erro ao marcar campos:', e);
         }
 
         const tudoOk = okNome && okCpf && okFone && okConselho && okUf;
-        btn.disabled = !tudoOk;
-
-        // Feedback visual no botão
-        if (tudoOk) {
-          btn.style.opacity = '1';
-          btn.style.cursor = 'pointer';
-        } else {
-          btn.style.opacity = '0.5';
-          btn.style.cursor = 'not-allowed';
+        if (btn) {
+          btn.disabled = !tudoOk;
+          btn.style.opacity = tudoOk ? '1' : '0.5';
+          btn.style.cursor = tudoOk ? 'pointer' : 'not-allowed';
         }
       }
 
@@ -248,33 +247,36 @@
       });
 
       // Submit do formulário
-      document.getElementById("form-dados").addEventListener("submit", function(e) {
-        e.preventDefault();
-        if (btn.disabled) return;
+      const form = document.getElementById("form-dados");
+      if (form) {
+        form.addEventListener("submit", function(e) {
+          e.preventDefault();
+          if (!btn || btn.disabled) return;
 
-        try {
-          ZC.salvar({
-            nome: nome.value.trim(),
-            cpf: cpf.value,
-            telefone: telefone.value,
-            conselho_numero: conselho.value.trim(),
-            uf: uf.value
-          });
-          ZC.ir("./documentos.html");
-        } catch(err) {
-          console.error('Erro ao salvar:', err);
-          alert('Erro ao salvar dados. Tente novamente.');
-        }
-      });
+          try {
+            ZC.salvar({
+              nome: nome ? nome.value.trim() : '',
+              cpf: cpf ? cpf.value : '',
+              telefone: telefone ? telefone.value : '',
+              conselho_numero: conselho ? conselho.value.trim() : '',
+              uf: uf ? uf.value : ''
+            });
+            ZC.ir("./documentos.html");
+          } catch(err) {
+            console.error('Erro ao salvar:', err);
+            alert('Erro ao salvar dados. Tente novamente.');
+          }
+        });
+      }
 
       // Botão voltar
-      document.getElementById("btn-voltar").addEventListener("click", function() {
-        try {
-          ZC.ir("./categorias.html");
-        } catch(e) {
-          window.location.href = "./categorias.html";
-        }
-      });
+      const btnVoltar = document.getElementById("btn-voltar");
+      if (btnVoltar) {
+        btnVoltar.addEventListener("click", function() {
+          try { ZC.ir("./categorias.html"); }
+          catch(e) { window.location.href = "./categorias.html"; }
+        });
+      }
 
       // Validação inicial
       validar();
