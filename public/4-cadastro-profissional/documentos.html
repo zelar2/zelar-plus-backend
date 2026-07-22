@@ -8,100 +8,317 @@
   <script type="module" crossorigin src="../assets/cadastro-CzP_A_lC.js"></script>
   <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
   <style>
-    .upload {
-      border: 2px dashed var(--vidro-borda);
-      border-radius: var(--raio-pq);
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: var(--transicao);
-      margin-bottom: 14px;
+    /* ============================================================
+       NOVO FLUXO DE DOCUMENTOS - Moderno e Limpo
+       ============================================================ */
+
+    /* Container do fluxo */
+    .fluxo-docs {
       position: relative;
-      overflow: hidden;
     }
-    .upload:hover { border-color: var(--acento); background: rgba(0,212,170,.06); }
-    .upload.enviado { border-style: solid; border-color: var(--sucesso); background: rgba(46,229,157,.08); }
-    .upload .icone { font-size: 30px; margin-bottom: 8px; }
-    .upload .titulo { font-size: 14px; font-weight: 700; }
-    .upload .detalhe { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
-    .upload input { display: none; }
 
-    /* Preview da imagem */
-    .upload-preview {
-      width: 100%;
-      max-height: 120px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-top: 10px;
-      display: none;
-    }
-    .upload.enviado .upload-preview { display: block; }
-    .upload.enviado .icone { display: none; }
-
-    /* Botão remover */
-    .btn-remover {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(255,50,50,0.9);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
-      cursor: pointer;
-      display: none;
+    /* Step indicator minimalista */
+    .steps-minimal {
+      display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 2;
+      gap: 8px;
+      margin-bottom: 20px;
     }
-    .upload.enviado .btn-remover { display: flex; }
+    .steps-minimal .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .steps-minimal .step-dot.feito {
+      background: var(--sucesso, #2ee59d);
+      box-shadow: 0 0 8px rgba(46,229,157,0.4);
+    }
+    .steps-minimal .step-dot.atual {
+      background: var(--acento, #00d4aa);
+      width: 24px;
+      border-radius: 4px;
+      box-shadow: 0 0 12px rgba(0,212,170,0.5);
+    }
 
-    /* Barra de progresso */
-    .progresso-upload {
-      width: 100%;
-      height: 3px;
-      background: rgba(0,212,170,0.2);
-      border-radius: 2px;
-      margin-top: 8px;
+    /* Card de upload principal */
+    .upload-card {
+      border: 2px dashed rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 0;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255,255,255,0.03);
+      position: relative;
       overflow: hidden;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .upload-card:hover {
+      border-color: var(--acento, #00d4aa);
+      background: rgba(0,212,170,0.04);
+      transform: translateY(-2px);
+    }
+    .upload-card.enviado {
+      border-style: solid;
+      border-color: var(--sucesso, #2ee59d);
+      background: rgba(46,229,157,0.06);
+    }
+    .upload-card input { display: none; }
+
+    /* Estado vazio */
+    .upload-card .estado-vazio {
+      padding: 40px 24px;
+      transition: opacity 0.3s ease;
+    }
+    .upload-card.enviado .estado-vazio {
       display: none;
     }
-    .progresso-upload.ativo { display: block; }
-    .progresso-upload .barra {
-      height: 100%;
-      background: var(--acento);
-      border-radius: 2px;
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-
-    /* Contador de documentos */
-    .contador-docs {
-      text-align: center;
-      font-size: 13px;
-      color: var(--texto-suave);
+    .upload-card .icone-grande {
+      font-size: 48px;
       margin-bottom: 16px;
-      padding: 8px;
-      background: rgba(255,255,255,0.05);
-      border-radius: var(--raio-pq);
+      opacity: 0.8;
     }
-    .contador-docs strong { color: var(--acento); }
-    .contador-docs.completo { color: var(--sucesso); background: rgba(46,229,157,.08); }
+    .upload-card .titulo-doc {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--texto, #fff);
+      margin-bottom: 8px;
+    }
+    .upload-card .desc-doc {
+      font-size: 13px;
+      color: var(--texto-suave, rgba(255,255,255,0.6));
+      line-height: 1.5;
+      max-width: 240px;
+    }
+    .upload-card .hint-tap {
+      font-size: 12px;
+      color: var(--acento, #00d4aa);
+      margin-top: 16px;
+      opacity: 0.7;
+    }
 
-    /* Animação de pulso no upload */
-    @keyframes pulse-border {
-      0%, 100% { border-color: var(--vidro-borda); }
-      50% { border-color: var(--acento); }
+    /* Estado com preview */
+    .upload-card .estado-preview {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: relative;
     }
-    .upload.pendente {
-      animation: pulse-border 2s infinite;
+    .upload-card.enviado .estado-preview {
+      display: flex;
+      flex-direction: column;
+    }
+    .upload-card .preview-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 16px 16px 0 0;
+    }
+    .upload-card .preview-info {
+      padding: 16px 20px;
+      text-align: left;
+      flex: 1;
+    }
+    .upload-card .preview-info .nome-arquivo {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--texto, #fff);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .upload-card .preview-info .nome-arquivo::before {
+      content: "✓";
+      color: var(--sucesso, #2ee59d);
+      font-weight: 700;
+    }
+    .upload-card .preview-info .tipo-doc {
+      font-size: 12px;
+      color: var(--texto-suave, rgba(255,255,255,0.5));
+      margin-top: 4px;
     }
 
-    /* Fallback de ZelarCadastro */
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--vidro); color: var(--texto); padding: 12px 24px; border-radius: var(--raio-pq); border: 1px solid var(--vidro-borda); opacity: 0; transition: all 0.3s ease; z-index: 9999; }
+    /* Botão remover dentro do preview */
+    .btn-remover-preview {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      z-index: 5;
+    }
+    .btn-remover-preview:hover {
+      background: rgba(255,50,50,0.8);
+      transform: scale(1.1);
+    }
+
+    /* Navegação entre documentos */
+    .navegacao-docs {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      gap: 12px;
+    }
+    .nav-seta {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--texto, #fff);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .nav-seta:hover:not(:disabled) {
+      background: rgba(255,255,255,0.15);
+    }
+    .nav-seta:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .nav-info {
+      text-align: center;
+      flex: 1;
+    }
+    .nav-info .doc-atual-nome {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--texto, #fff);
+    }
+    .nav-info .doc-atual-status {
+      font-size: 12px;
+      color: var(--texto-suave, rgba(255,255,255,0.5));
+      margin-top: 2px;
+    }
+    .nav-info .doc-atual-status.ok {
+      color: var(--sucesso, #2ee59d);
+    }
+
+    /* Lista resumida de documentos (mini cards) */
+    .resumo-docs {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      justify-content: center;
+    }
+    .mini-doc {
+      flex: 1;
+      max-width: 80px;
+      padding: 10px 6px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .mini-doc:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    .mini-doc.ativo {
+      border-color: var(--acento, #00d4aa);
+      background: rgba(0,212,170,0.08);
+    }
+    .mini-doc.feito {
+      border-color: var(--sucesso, #2ee59d);
+    }
+    .mini-doc.feito::after {
+      content: "✓";
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 16px;
+      height: 16px;
+      background: var(--sucesso, #2ee59d);
+      border-radius: 50%;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-weight: 700;
+    }
+    .mini-doc .mini-icone {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .mini-doc .mini-label {
+      font-size: 10px;
+      color: var(--texto-suave, rgba(255,255,255,0.6));
+      line-height: 1.2;
+    }
+
+    /* Animações */
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-soft {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,170,0.2); }
+      50% { box-shadow: 0 0 0 8px rgba(0,212,170,0); }
+    }
+    .anim-slide-right { animation: slideInRight 0.4s ease; }
+    .anim-slide-left { animation: slideInLeft 0.4s ease; }
+    .anim-fade-up { animation: fadeInUp 0.5s ease; }
+    .pulse-animate { animation: pulse-soft 2s infinite; }
+
+    /* Barra de progresso sutil */
+    .progresso-doc {
+      width: 100%;
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+    .progresso-doc .preenchido {
+      height: 100%;
+      background: linear-gradient(90deg, var(--acento, #00d4aa), var(--sucesso, #2ee59d));
+      border-radius: 2px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Toast fallback */
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--vidro, rgba(30,60,114,0.9)); color: var(--texto, #fff); padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); opacity: 0; transition: all 0.3s ease; z-index: 9999; backdrop-filter: blur(10px); font-size: 14px; }
     .toast.visivel { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Botões de ação */
+    .acoes-finais {
+      margin-top: 24px;
+    }
   </style>
 </head>
 <body>
@@ -122,49 +339,42 @@
 
     <div class="cartao brilho">
       <h1>Documentos</h1>
-      <p class="descricao">Envie fotos legíveis dos documentos</p>
+      <p class="descricao">Envie os documentos necessários</p>
 
-      <div class="contador-docs" id="contador">
-        Documentos enviados: <strong id="contador-num">0/3</strong>
+      <!-- Indicador de steps minimalista -->
+      <div class="steps-minimal" id="steps-indicator">
+        <div class="step-dot atual" data-step="0"></div>
+        <div class="step-dot" data-step="1"></div>
+        <div class="step-dot" data-step="2"></div>
       </div>
 
-      <label class="upload pendente" data-doc="identidade">
-        <input type="file" accept="image/*,.pdf" capture="environment" />
-        <button type="button" class="btn-remover" data-remove="identidade">×</button>
-        <div class="icone">🪪</div>
-        <div class="titulo">RG ou CNH</div>
-        <div class="detalhe">Documento de identidade com foto</div>
-        <img class="upload-preview" id="preview-identidade" alt="Preview" />
-        <div class="progresso-upload" id="progress-identidade">
-          <div class="barra"></div>
-        </div>
-      </label>
+      <!-- Card principal de upload -->
+      <div class="fluxo-docs" id="fluxo-docs">
+        <!-- Conteúdo injetado via JS -->
+      </div>
 
-      <label class="upload pendente" data-doc="conselho">
-        <input type="file" accept="image/*,.pdf" capture="environment" />
-        <button type="button" class="btn-remover" data-remove="conselho">×</button>
-        <div class="icone">📜</div>
-        <div class="titulo">Carteira do conselho / certificado</div>
-        <div class="detalhe">Registro profissional da sua categoria</div>
-        <img class="upload-preview" id="preview-conselho" alt="Preview" />
-        <div class="progresso-upload" id="progress-conselho">
-          <div class="barra"></div>
+      <!-- Navegação -->
+      <div class="navegacao-docs">
+        <button class="nav-seta" id="nav-anterior" disabled>‹</button>
+        <div class="nav-info">
+          <div class="doc-atual-nome" id="doc-nome">RG ou CNH</div>
+          <div class="doc-atual-status" id="doc-status">Toque para enviar</div>
         </div>
-      </label>
+        <button class="nav-seta" id="nav-proximo">›</button>
+      </div>
 
-      <label class="upload pendente" data-doc="comprovante">
-        <input type="file" accept="image/*,.pdf" capture="environment" />
-        <button type="button" class="btn-remover" data-remove="comprovante">×</button>
-        <div class="icone">🏠</div>
-        <div class="titulo">Comprovante de residência</div>
-        <div class="detalhe">Conta de luz, água ou telefone (últimos 90 dias)</div>
-        <img class="upload-preview" id="preview-comprovante" alt="Preview" />
-        <div class="progresso-upload" id="progress-comprovante">
-          <div class="barra"></div>
-        </div>
-      </label>
+      <!-- Mini cards de resumo -->
+      <div class="resumo-docs" id="resumo-docs">
+        <!-- Injetado via JS -->
+      </div>
 
-      <div class="linha mt-8">
+      <!-- Barra de progresso geral -->
+      <div class="progresso-doc">
+        <div class="preenchido" id="barra-geral" style="width: 0%"></div>
+      </div>
+
+      <!-- Botões finais -->
+      <div class="linha mt-8 acoes-finais">
         <button class="botao secundario" id="btn-voltar">Voltar</button>
         <button class="botao" id="btn-continuar" disabled>Continuar</button>
       </div>
@@ -200,169 +410,254 @@
     };
 
     // ============================================================
-    // LÓGICA DE UPLOAD MELHORADA
+    // CONFIGURAÇÃO DOS DOCUMENTOS
     // ============================================================
-    (function() {
-      const uploads = document.querySelectorAll(".upload");
-      const btn = document.getElementById("btn-continuar");
-      const contadorEl = document.getElementById("contador");
-      const contadorNum = document.getElementById("contador-num");
-      let enviados = {};
-
-      try {
-        const dados = ZC.ler();
-        enviados = (dados && dados.documentos) ? dados.documentos : {};
-      } catch(e) { enviados = {}; }
-
-      // Atualiza preview de imagem
-      function mostrarPreview(doc, file) {
-        const preview = document.getElementById('preview-' + doc);
-        if (!preview) return;
-        if (file && file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            preview.src = e.target.result;
-          };
-          reader.readAsDataURL(file);
-        } else if (file) {
-          preview.src = '';
-          preview.alt = '📄 ' + file.name;
-        }
+    const DOCS = [
+      {
+        id: 'identidade',
+        nome: 'RG ou CNH',
+        descricao: 'Documento de identidade com foto legível',
+        icone: '🪪',
+        obrigatorio: true
+      },
+      {
+        id: 'conselho',
+        nome: 'Carteira do Conselho',
+        descricao: 'Registro profissional da sua categoria',
+        icone: '📜',
+        obrigatorio: true
+      },
+      {
+        id: 'comprovante',
+        nome: 'Comprovante de Residência',
+        descricao: 'Conta de luz, água ou telefone (últimos 90 dias)',
+        icone: '🏠',
+        obrigatorio: false
       }
+    ];
 
-      // Simula barra de progresso
-      function animarProgresso(doc) {
-        const barra = document.querySelector('#progress-' + doc + ' .barra');
-        const container = document.getElementById('progress-' + doc);
-        if (!barra || !container) return;
-        container.classList.add('ativo');
-        let progresso = 0;
-        const intervalo = setInterval(() => {
-          progresso += Math.random() * 25 + 10;
-          if (progresso >= 100) {
-            progresso = 100;
-            clearInterval(intervalo);
-            setTimeout(() => container.classList.remove('ativo'), 500);
-          }
-          barra.style.width = progresso + '%';
-        }, 200);
-      }
+    // ============================================================
+    // ESTADO
+    // ============================================================
+    let docAtual = 0;
+    let enviados = {};
+    let previews = {};
 
-      // Atualiza estado visual
-      function atualizar() {
-        let count = 0;
-        uploads.forEach((u) => {
-          const doc = u.dataset.doc;
-          const temDoc = !!enviados[doc];
-          u.classList.toggle("enviado", temDoc);
-          u.classList.toggle("pendente", !temDoc);
+    try {
+      const dados = ZC.ler();
+      enviados = (dados && dados.documentos) ? dados.documentos : {};
+      previews = (dados && dados.documentos_preview) ? dados.documentos_preview : {};
+    } catch(e) { enviados = {}; previews = {}; }
 
-          const detalhe = u.querySelector(".detalhe");
-          if (temDoc && detalhe) {
-            detalhe.textContent = "✓ " + enviados[doc];
-          }
-          if (temDoc) count++;
-        });
+    // ============================================================
+    // ELEMENTOS DOM
+    // ============================================================
+    const fluxoEl = document.getElementById('fluxo-docs');
+    const navAnt = document.getElementById('nav-anterior');
+    const navProx = document.getElementById('nav-proximo');
+    const docNome = document.getElementById('doc-nome');
+    const docStatus = document.getElementById('doc-status');
+    const resumoEl = document.getElementById('resumo-docs');
+    const barraGeral = document.getElementById('barra-geral');
+    const btnContinuar = document.getElementById('btn-continuar');
+    const stepsIndicator = document.getElementById('steps-indicator');
 
-        // Atualiza contador
-        contadorNum.textContent = count + "/3";
-        if (count >= 2) {
-          contadorEl.classList.add('completo');
-          contadorEl.innerHTML = '✓ <strong>Pronto para continuar!</strong>';
-        } else {
-          contadorEl.classList.remove('completo');
-          contadorEl.innerHTML = 'Documentos enviados: <strong>' + count + '/3</strong>';
-        }
+    // ============================================================
+    // FUNÇÕES
+    // ============================================================
 
-        // Habilita botão (identidade + conselho obrigatórios)
-        btn.disabled = !(enviados.identidade && enviados.conselho);
-        btn.style.opacity = btn.disabled ? '0.5' : '1';
-      }
+    function renderizarCard(doc, index) {
+      const temDoc = !!enviados[doc.id];
+      const previewSrc = previews[doc.id] || '';
 
-      // Upload de arquivo
-      uploads.forEach((u) => {
-        const input = u.querySelector("input[type='file']");
-        if (!input) return;
+      return `
+        <label class="upload-card ${temDoc ? 'enviado' : 'pulse-animate'} anim-fade-up" data-index="${index}">
+          <input type="file" accept="image/*,.pdf" capture="environment" data-doc="${doc.id}" />
 
-        input.addEventListener("change", () => {
-          if (input.files && input.files.length > 0) {
-            const file = input.files[0];
-            const doc = u.dataset.doc;
+          <!-- Estado vazio -->
+          <div class="estado-vazio">
+            <div class="icone-grande">${doc.icone}</div>
+            <div class="titulo-doc">${doc.nome}</div>
+            <div class="desc-doc">${doc.descricao}</div>
+            <div class="hint-tap">📷 Toque para tirar foto ou escolher arquivo</div>
+          </div>
 
-            // Valida tamanho (max 10MB)
-            if (file.size > 10 * 1024 * 1024) {
-              ZC.toast("Arquivo muito grande! Máx: 10MB", "erro");
-              input.value = '';
-              return;
-            }
+          <!-- Estado com preview -->
+          <div class="estado-preview">
+            ${temDoc && previewSrc ? `<img class="preview-img" src="${previewSrc}" alt="${doc.nome}" />` : ''}
+            ${temDoc && !previewSrc ? `<div class="preview-img" style="display:flex;align-items:center;justify-content:center;background:rgba(0,212,170,0.1);"><span style="font-size:48px">📄</span></div>` : ''}
+            <button type="button" class="btn-remover-preview" data-remove="${doc.id}">×</button>
+            <div class="preview-info">
+              <div class="nome-arquivo">${enviados[doc.id] || ''}</div>
+              <div class="tipo-doc">${doc.nome} ${doc.obrigatorio ? '• Obrigatório' : '• Opcional'}</div>
+            </div>
+          </div>
+        </label>
+      `;
+    }
 
-            // Valida tipo
-            const tiposValidos = ['image/', 'application/pdf'];
-            const valido = tiposValidos.some(t => file.type.startsWith(t) || file.name.toLowerCase().endsWith('.pdf'));
-            if (!valido) {
-              ZC.toast("Formato não suportado. Use imagem ou PDF.", "erro");
-              input.value = '';
-              return;
-            }
+    function renderizarResumo() {
+      resumoEl.innerHTML = DOCS.map((doc, i) => {
+        const feito = !!enviados[doc.id];
+        const ativo = i === docAtual;
+        return `
+          <div class="mini-doc ${feito ? 'feito' : ''} ${ativo ? 'ativo' : ''}" data-index="${i}">
+            <div class="mini-icone">${doc.icone}</div>
+            <div class="mini-label">${doc.nome.split(' ')[0]}</div>
+          </div>
+        `;
+      }).join('');
 
-            animarProgresso(doc);
-            mostrarPreview(doc, file);
-
-            enviados[doc] = file.name;
-            try {
-              ZC.salvar({ documentos: enviados });
-            } catch(e) {}
-
-            setTimeout(() => {
-              ZC.toast("Documento anexado! ✓", "sucesso");
-              atualizar();
-            }, 800);
+      // Click nos mini docs
+      resumoEl.querySelectorAll('.mini-doc').forEach(mini => {
+        mini.addEventListener('click', () => {
+          const idx = parseInt(mini.dataset.index);
+          if (idx !== docAtual) {
+            docAtual = idx;
+            atualizarTela();
           }
         });
       });
+    }
 
-      // Remover documento
-      document.querySelectorAll('.btn-remover').forEach(btnRemover => {
+    function atualizarSteps() {
+      const dots = stepsIndicator.querySelectorAll('.step-dot');
+      dots.forEach((dot, i) => {
+        dot.className = 'step-dot';
+        if (i < docAtual) dot.classList.add('feito');
+        if (i === docAtual) dot.classList.add('atual');
+        if (enviados[DOCS[i].id] && i !== docAtual) dot.classList.add('feito');
+      });
+    }
+
+    function atualizarBarraGeral() {
+      const obrigatorios = DOCS.filter(d => d.obrigatorio);
+      const obrigatoriosEnviados = obrigatorios.filter(d => enviados[d.id]).length;
+      const pct = (obrigatoriosEnviados / obrigatorios.length) * 100;
+      barraGeral.style.width = pct + '%';
+    }
+
+    function atualizarNavegacao() {
+      navAnt.disabled = docAtual === 0;
+      navProx.disabled = docAtual === DOCS.length - 1;
+
+      const doc = DOCS[docAtual];
+      const temDoc = !!enviados[doc.id];
+      docNome.textContent = doc.nome;
+      docStatus.textContent = temDoc ? '✓ Documento enviado' : (doc.obrigatorio ? 'Toque para enviar • Obrigatório' : 'Toque para enviar • Opcional');
+      docStatus.className = 'doc-atual-status' + (temDoc ? ' ok' : '');
+    }
+
+    function atualizarBotaoContinuar() {
+      const obrigatoriosOk = DOCS.filter(d => d.obrigatorio).every(d => enviados[d.id]);
+      btnContinuar.disabled = !obrigatoriosOk;
+      btnContinuar.style.opacity = obrigatoriosOk ? '1' : '0.5';
+    }
+
+    function atualizarTela() {
+      const doc = DOCS[docAtual];
+      fluxoEl.innerHTML = renderizarCard(doc, docAtual);
+
+      // Evento de upload
+      const input = fluxoEl.querySelector('input[type="file"]');
+      if (input) {
+        input.addEventListener('change', (e) => handleUpload(e, doc));
+      }
+
+      // Evento de remover
+      const btnRemover = fluxoEl.querySelector('.btn-remover-preview');
+      if (btnRemover) {
         btnRemover.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          const doc = btnRemover.dataset.remove;
-          if (!doc) return;
-
-          // Limpa preview
-          const preview = document.getElementById('preview-' + doc);
-          if (preview) { preview.src = ''; }
-
-          // Limpa input
-          const uploadEl = document.querySelector('.upload[data-doc="' + doc + '"]');
-          if (uploadEl) {
-            const input = uploadEl.querySelector('input');
-            if (input) input.value = '';
-          }
-
-          delete enviados[doc];
-          try { ZC.salvar({ documentos: enviados }); } catch(e) {}
-          ZC.toast("Documento removido", "info");
-          atualizar();
+          handleRemover(doc.id);
         });
-      });
+      }
 
-      // Botão continuar
-      btn.addEventListener("click", () => {
-        if (btn.disabled) return;
-        try { ZC.ir("./foto.html"); }
-        catch(e) { window.location.href = "./foto.html"; }
-      });
+      atualizarNavegacao();
+      atualizarSteps();
+      renderizarResumo();
+      atualizarBarraGeral();
+      atualizarBotaoContinuar();
+    }
 
-      // Botão voltar
-      document.getElementById("btn-voltar").addEventListener("click", () => {
-        try { ZC.ir("./dados.html"); }
-        catch(e) { window.location.href = "./dados.html"; }
-      });
+    function handleUpload(e, doc) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-      // Inicializa
-      atualizar();
-    })();
+      // Valida tamanho (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        ZC.toast('Arquivo muito grande! Máx: 10MB');
+        e.target.value = '';
+        return;
+      }
+
+      // Preview
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          previews[doc.id] = evt.target.result;
+          enviados[doc.id] = file.name;
+          salvarEstado();
+          ZC.toast('Documento enviado! ✓');
+          atualizarTela();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previews[doc.id] = '';
+        enviados[doc.id] = file.name;
+        salvarEstado();
+        ZC.toast('Documento enviado! ✓');
+        atualizarTela();
+      }
+    }
+
+    function handleRemover(docId) {
+      delete enviados[docId];
+      delete previews[docId];
+      salvarEstado();
+      ZC.toast('Documento removido');
+      atualizarTela();
+    }
+
+    function salvarEstado() {
+      try {
+        ZC.salvar({ documentos: enviados, documentos_preview: previews });
+      } catch(e) {}
+    }
+
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
+    navAnt.addEventListener('click', () => {
+      if (docAtual > 0) {
+        docAtual--;
+        atualizarTela();
+      }
+    });
+
+    navProx.addEventListener('click', () => {
+      if (docAtual < DOCS.length - 1) {
+        docAtual++;
+        atualizarTela();
+      }
+    });
+
+    btnContinuar.addEventListener('click', () => {
+      if (btnContinuar.disabled) return;
+      try { ZC.ir('./foto.html'); }
+      catch(e) { window.location.href = './foto.html'; }
+    });
+
+    document.getElementById('btn-voltar').addEventListener('click', () => {
+      try { ZC.ir('./dados.html'); }
+      catch(e) { window.location.href = './dados.html'; }
+    });
+
+    // ============================================================
+    // INICIALIZAÇÃO
+    // ============================================================
+    atualizarTela();
   </script>
 </body>
 </html>
