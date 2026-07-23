@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ZELAR+ - Categoria Profissional</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+</head>
+<body>
+  <div class="app-container">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3l9-8z"/></svg>
+      </div>
+      <div class="logo-texto">ZELAR<span>+</span></div>
+    </div>
+    <p class="subtitulo">Cadastro de Profissional</p>
+
+    <div class="progresso">
+      <div class="dot ativo"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <div class="cartao brilho">
+      <h1>Sua categoria</h1>
+      <p class="descricao">Selecione sua área de atuação</p>
+
+      <div class="grade" id="grade-categorias">
+        <div class="cartao-opcao" data-categoria="Auxiliar de Enfermagem" data-conselho="COREN">
+          <div class="icone">🛏️</div>
+          <div class="titulo">Auxiliar de Enfermagem</div>
+        </div>
+        <div class="cartao-opcao" data-categoria="Técnico de Enfermagem" data-conselho="COREN">
+          <div class="icone">💉</div>
+          <div class="titulo">Técnico de Enfermagem</div>
+        </div>
+        <div class="cartao-opcao" data-categoria="Enfermeiro(a)" data-conselho="COREN">
+          <div class="icone">🩺</div>
+          <div class="titulo">Enfermeiro(a)</div>
+        </div>
+        <div class="cartao-opcao" data-categoria="Cuidador Profissional" data-conselho="Não exige conselho">
+          <div class="icone">🤝</div>
+          <div class="titulo">Cuidador</div>
+        </div>
+        <div class="cartao-opcao" data-categoria="Fisioterapeuta" data-conselho="CREFITO">
+          <div class="icone">🦵</div>
+          <div class="titulo">Fisioterapeuta</div>
+        </div>
+        <div class="cartao-opcao" data-categoria="Fonoaudiólogo(a)" data-conselho="CRFa">
+          <div class="icone">🗣️</div>
+          <div class="titulo">Fonoaudiólogo(a)</div>
+        </div>
+        <div class="cartao-opcao" data-categoria="Médico(a)" data-conselho="CRM">
+          <div class="icone">👨‍⚕️</div>
+          <div class="titulo">Médico(a)</div>
+        </div>
+        <div class="cartao-opcao" data-categoria="Nutricionista" data-conselho="CRN">
+          <div class="icone">🥗</div>
+          <div class="titulo">Nutricionista</div>
+        </div>
+        <div class="cartao-opcao" data-categoria="Psicólogo(a)" data-conselho="CRP">
+          <div class="icone">🧠</div>
+          <div class="titulo">Psicólogo(a)</div>
+        </div>
+        <div class="cartao-opcao" data-categoria="Terapeuta Ocupacional" data-conselho="CREFITO">
+          <div class="icone">🖐️</div>
+          <div class="titulo">Terapeuta Ocupacional</div>
+        </div>
+      </div>
+
+      <button class="botao mt-24" id="btn-continuar" disabled>Continuar</button>
+    </div>
+  </div>
+
+  <script type="module" src="./js/cadastro.js"></script>
+  <script>
+    const cartoes = document.querySelectorAll("#grade-categorias .cartao-opcao");
+    const btn = document.getElementById("btn-continuar");
+    let escolha = null;
+
+    cartoes.forEach((c) => {
+      c.addEventListener("click", () => {
+        cartoes.forEach((x) => x.classList.remove("selecionado"));
+        c.classList.add("selecionado");
+        escolha = { categoria: c.dataset.categoria, conselho: c.dataset.conselho };
+        btn.disabled = false;
+      });
+    });
+
+    btn.addEventListener("click", () => {
+      if (!escolha) return;
+      ZelarCadastro.salvar({ categoria: escolha.categoria, conselho: escolha.conselho });
+      ZelarCadastro.ir("./dados.html");
+    });
+  </script>
+</body>
+</html>

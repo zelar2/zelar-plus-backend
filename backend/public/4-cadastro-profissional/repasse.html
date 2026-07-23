@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ZELAR+ - Dados de Repasse</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+</head>
+<body>
+  <div class="app-container">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3l9-8z"/></svg>
+      </div>
+      <div class="logo-texto">ZELAR<span>+</span></div>
+    </div>
+    <p class="subtitulo">Cadastro de Profissional</p>
+
+    <div class="progresso">
+      <div class="dot feito"></div>
+      <div class="dot feito"></div>
+      <div class="dot ativo"></div>
+    </div>
+
+    <div class="cartao brilho">
+      <h1>Dados de repasse</h1>
+      <p class="descricao">Onde você quer receber seus ganhos (semanalmente)</p>
+
+      <form id="form-repasse" novalidate>
+        <div class="grupo">
+          <label for="banco">Banco</label>
+          <input type="text" id="banco" class="campo" placeholder="Ex.: Banco do Brasil, Nubank..." />
+          <span class="msg-erro" id="erro-banco">Informe o banco.</span>
+        </div>
+
+        <div class="linha">
+          <div class="grupo">
+            <label for="agencia">Agência</label>
+            <input type="text" id="agencia" class="campo" placeholder="0000" inputmode="numeric" maxlength="6" />
+            <span class="msg-erro" id="erro-agencia">Inválida.</span>
+          </div>
+          <div class="grupo">
+            <label for="conta">Conta</label>
+            <input type="text" id="conta" class="campo" placeholder="00000-0" inputmode="numeric" maxlength="12" />
+            <span class="msg-erro" id="erro-conta">Inválida.</span>
+          </div>
+        </div>
+
+        <div class="grupo">
+          <label for="pix">Chave PIX</label>
+          <input type="text" id="pix" class="campo" placeholder="CPF, e-mail, telefone ou aleatória" />
+          <span class="msg-erro" id="erro-pix">Informe uma chave PIX.</span>
+        </div>
+
+        <div class="linha">
+          <button type="button" class="botao secundario" id="btn-voltar">Voltar</button>
+          <button type="submit" class="botao" id="btn-continuar" disabled>Continuar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="./js/cadastro.js"></script>
+  <script>
+    // ============================================================
+    // FALLBACK: ZelarCadastro caso o JS externo não carregue
+    // ============================================================
+    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
+      ler: function() {
+        try { const d = localStorage.getItem('zelar_cadastro'); return d ? JSON.parse(d) : {}; }
+        catch(e) { return {}; }
+      },
+      salvar: function(obj) {
+        try { const a = this.ler(); localStorage.setItem('zelar_cadastro', JSON.stringify({...a, ...obj})); }
+        catch(e) {}
+      },
+      ir: function(url) {
+        document.body.classList.add('saindo');
+        setTimeout(() => { window.location.href = url; }, 300);
+      },
+      marcar: function(input, erroId, valido) {
+        const erro = document.getElementById(erroId);
+        if (valido) {
+          input.classList.remove('erro');
+          input.classList.add('ok');
+          if (erro) erro.style.display = 'none';
+        } else {
+          input.classList.remove('ok');
+          input.classList.add('erro');
+          if (erro) erro.style.display = 'block';
+        }
+      }
+    };
+
+    // ============================================================
+    // LÓGICA PRINCIPAL
+    // ============================================================
+    (function() {
+      const banco = document.getElementById("banco");
+      const agencia = document.getElementById("agencia");
+      const conta = document.getElementById("conta");
+      const pix = document.getElementById("pix");
+      const btn = document.getElementById("btn-continuar");
+      const form = document.getElementById("form-repasse");
+      const btnVoltar = document.getElementById("btn-voltar");
+
+      if (!banco || !agencia || !conta || !pix || !btn) return;
+
+      // Restaura dados salvos
+      try {
+        const salvo = ZC.ler();
+        if (salvo) {
+          if (salvo.banco) banco.value = salvo.banco;
+          if (salvo.agencia) agencia.value = salvo.agencia;
+          if (salvo.conta) conta.value = salvo.conta;
+          if (salvo.pix) pix.value = salvo.pix;
+        }
+      } catch(e) {}
+
+      function validar() {
+        let okBanco = false, okAg = false, okConta = false, okPix = false;
+
+        try { okBanco = banco.value.trim().length >= 2; } catch(e) { okBanco = false; }
+        try { okAg = agencia.value.replace(/\D/g, "").length >= 3; } catch(e) { okAg = false; }
+        try { okConta = conta.value.replace(/\D/g, "").length >= 4; } catch(e) { okConta = false; }
+        try { okPix = pix.value.trim().length >= 5; } catch(e) { okPix = false; }
+
+        try {
+          ZC.marcar(banco, "erro-banco", okBanco);
+          ZC.marcar(agencia, "erro-agencia", okAg);
+          ZC.marcar(conta, "erro-conta", okConta);
+          ZC.marcar(pix, "erro-pix", okPix);
+        } catch(e) {}
+
+        const tudoOk = okBanco && okAg && okConta && okPix;
+        btn.disabled = !tudoOk;
+        btn.style.opacity = tudoOk ? '1' : '0.5';
+        btn.style.cursor = tudoOk ? 'pointer' : 'not-allowed';
+      }
+
+      [banco, agencia, conta, pix].forEach((c) => {
+        if (c) {
+          c.addEventListener("input", validar);
+          c.addEventListener("change", validar);
+          c.addEventListener("blur", validar);
+        }
+      });
+
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (btn.disabled) return;
+          try {
+            ZC.salvar({
+              banco: banco.value.trim(),
+              agencia: agencia.value.trim(),
+              conta: conta.value.trim(),
+              pix: pix.value.trim()
+            });
+            ZC.ir("./termo.html");
+          } catch(err) {
+            console.error('Erro ao salvar:', err);
+            alert('Erro ao salvar dados. Tente novamente.');
+          }
+        });
+      }
+
+      if (btnVoltar) {
+        btnVoltar.addEventListener("click", () => {
+          try { ZC.ir("./foto.html"); }
+          catch(e) { window.location.href = "./foto.html"; }
+        });
+      }
+
+      validar();
+    })();
+  </script>
+</body>
+</html>

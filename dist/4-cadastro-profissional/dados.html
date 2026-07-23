@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZELAR+ - Dados Profissionais</title>
+
+  <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3l9-8z"/>
+      </svg>
+    </div>
+
+    <div class="logo-texto">
+      ZELAR<span>+</span>
+    </div>
+  </div>
+
+  <p class="subtitulo" id="subtitulo-categoria">
+    Dados Profissionais
+  </p>
+
+  <div class="progresso">
+    <div class="dot feito"></div>
+    <div class="dot ativo"></div>
+    <div class="dot"></div>
+  </div>
+
+  <div class="cartao brilho">
+
+    <h1>Seus dados</h1>
+    <p class="descricao">
+      Informe seus dados profissionais
+    </p>
+
+    <form id="form-dados">
+
+      <div class="grupo">
+        <label>Nome completo</label>
+
+        <input
+          id="nome"
+          class="campo"
+          type="text"
+          placeholder="Seu nome completo">
+
+        <span id="erro-nome" class="msg-erro">
+          Informe seu nome completo.
+        </span>
+      </div>
+
+      <div class="grupo">
+        <label>CPF</label>
+
+        <input
+          id="cpf"
+          class="campo"
+          type="text"
+          maxlength="14"
+          placeholder="000.000.000-00">
+
+        <span id="erro-cpf" class="msg-erro">
+          CPF inválido.
+        </span>
+      </div>
+
+      <div class="grupo">
+        <label>Telefone</label>
+
+        <input
+          id="telefone"
+          class="campo"
+          type="text"
+          maxlength="15"
+          placeholder="(00) 00000-0000">
+
+        <span id="erro-telefone" class="msg-erro">
+          Telefone inválido.
+        </span>
+      </div>
+
+      <div class="linha">
+
+        <div class="grupo">
+
+          <label id="label-conselho">
+            Número do conselho
+          </label>
+
+          <input
+            id="conselho"
+            class="campo"
+            type="text"
+            placeholder="Ex.: 123456">
+
+          <span id="erro-conselho" class="msg-erro">
+            Informe o número.
+          </span>
+
+        </div>
+
+        <div class="grupo" style="max-width:110px">
+
+          <label>UF</label>
+
+          <select id="uf" class="campo">
+            <option value="">UF</option>
+
+            <option>AC</option>
+            <option>AL</option>
+            <option>AP</option>
+            <option>AM</option>
+            <option>BA</option>
+            <option>CE</option>
+            <option>DF</option>
+            <option>ES</option>
+            <option>GO</option>
+            <option>MA</option>
+            <option>MT</option>
+            <option>MS</option>
+            <option>MG</option>
+            <option>PA</option>
+            <option>PB</option>
+            <option>PR</option>
+            <option>PE</option>
+            <option>PI</option>
+            <option>RJ</option>
+            <option>RN</option>
+            <option>RS</option>
+            <option>RO</option>
+            <option>RR</option>
+            <option>SC</option>
+            <option>SP</option>
+            <option>SE</option>
+            <option>TO</option>
+
+          </select>
+
+          <span id="erro-uf" class="msg-erro">
+            Selecione.
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="linha">
+
+        <button
+          type="button"
+          class="botao secundario"
+          id="btn-voltar">
+
+          Voltar
+
+        </button>
+
+        <button
+          id="btn-continuar"
+          class="botao"
+          type="submit"
+          disabled>
+
+          Continuar
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="./js/cadastro.js"></script>
+
+<script>
+
+const cadastro = ZelarCadastro.ler();
+
+if (cadastro.categoria){
+
+    document.getElementById("subtitulo-categoria").textContent =
+    cadastro.categoria;
+
+    document.getElementById("label-conselho").textContent =
+    cadastro.conselho==="Não exige conselho"
+    ? "Nº do certificado"
+    : "Número do " + (cadastro.conselho || "conselho");
+
+}
+
+const nome=document.getElementById("nome");
+const cpf=document.getElementById("cpf");
+const telefone=document.getElementById("telefone");
+const conselho=document.getElementById("conselho");
+const uf=document.getElementById("uf");
+const btn=document.getElementById("btn-continuar");
+
+ZelarCadastro.mascaraCPF(cpf);
+ZelarCadastro.mascaraTelefone(telefone);
+
+nome.value=cadastro.nome||"";
+cpf.value=cadastro.cpf||"";
+telefone.value=cadastro.telefone||"";
+conselho.value=cadastro.conselho_numero||"";
+uf.value=cadastro.uf||"";
+
+function validar(){
+
+    const okNome =
+        nome.value.trim().split(/\s+/).length>=2;
+
+    const okCpf =
+        ZelarCadastro.cpfValido(cpf.value);
+
+    const okTelefone =
+        telefone.value.replace(/\D/g,"").length>=10;
+
+    const okConselho =
+        conselho.value.trim().length>=3;
+
+    const okUf =
+        uf.value!="";
+
+    ZelarCadastro.marcar(nome,"erro-nome",okNome);
+    ZelarCadastro.marcar(cpf,"erro-cpf",okCpf);
+    ZelarCadastro.marcar(telefone,"erro-telefone",okTelefone);
+    ZelarCadastro.marcar(conselho,"erro-conselho",okConselho);
+    ZelarCadastro.marcar(uf,"erro-uf",okUf);
+
+    btn.disabled=!(
+        okNome &&
+        okCpf &&
+        okTelefone &&
+        okConselho &&
+        okUf
+    );
+
+}
+
+[nome,cpf,telefone,conselho,uf].forEach(function(c){
+
+    c.addEventListener("input",validar);
+    c.addEventListener("change",validar);
+
+});
+
+document.getElementById("form-dados").addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    if(btn.disabled)return;
+
+    ZelarCadastro.salvar({
+
+        nome:nome.value.trim(),
+        cpf:cpf.value,
+        telefone:telefone.value,
+        conselho_numero:conselho.value.trim(),
+        uf:uf.value
+
+    });
+
+    ZelarCadastro.ir("./documentos.html");
+
+});
+
+document.getElementById("btn-voltar").addEventListener("click",function(){
+
+    ZelarCadastro.ir("./categorias.html");
+
+});
+
+validar();
+
+</script>
+
+</body>
+</html>

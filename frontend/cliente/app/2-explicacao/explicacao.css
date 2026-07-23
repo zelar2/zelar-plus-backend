@@ -1,0 +1,42 @@
+/* ZELAR+ — Como funciona (estilos específicos) */
+
+.slides {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slide {
+  display: none;
+  text-align: center;
+  animation: entrar 0.35s ease;
+  padding: 0 10px;
+}
+
+.slide.ativo {
+  display: block;
+}
+
+.slide-icone {
+  font-size: 76px;
+  margin-bottom: 24px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3));
+}
+
+.slide h2 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.slide p {
+  color: var(--texto-suave);
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.progresso {
+  margin: 26px 0 20px;
+}

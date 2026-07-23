@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ZELAR+ - Médico(a)</title>
+  <style>
+    /* ---- Profissionais ---- */
+    .avatar { width:52px;height:52px;border-radius:50%;background:rgba(0,212,170,.16);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;position:relative; }
+    .status { position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;border:2px solid #24477f;background:#7a8699; }
+    .status.online { background:#2ee59d; box-shadow:0 0 6px rgba(46,229,157,.8); }
+    .estrelas { color:#ffc94d;font-size:12px;letter-spacing:1px; }
+    /* ---- Calendário ---- */
+    .calendario { background:rgba(255,255,255,.06);border:1px solid var(--vidro-borda);border-radius:var(--raio-pq);padding:14px; }
+    .cal-cab { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
+    .cal-cab button { background:var(--vidro-forte);border:1px solid var(--vidro-borda);color:#fff;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:16px; }
+    .cal-cab strong { font-size:14px;text-transform:capitalize; }
+    .cal-grade { display:grid;grid-template-columns:repeat(7,1fr);gap:5px; }
+    .cal-dow { text-align:center;font-size:10px;color:var(--texto-suave);padding:3px 0; }
+    .cal-dia { aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;border-radius:9px;cursor:pointer;background:rgba(255,255,255,.05);transition:var(--transicao); }
+    .cal-dia:hover:not(.desabilitado):not(.vazio) { background:var(--vidro-forte); }
+    .cal-dia.vazio { background:transparent;cursor:default; }
+    .cal-dia.desabilitado { opacity:.25;cursor:not-allowed; }
+    .cal-dia.selecionado { background:var(--acento);color:#06392e;font-weight:800; }
+    .horarios { display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px; }
+    .horario { padding:10px 4px;text-align:center;font-size:13px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid var(--vidro-borda);cursor:pointer;transition:var(--transicao); }
+    .horario:hover:not(.desabilitado) { background:var(--vidro-forte); }
+    .horario.selecionado { background:var(--acento);color:#06392e;font-weight:800;border-color:var(--acento); }
+    .horario.desabilitado { opacity:.25;cursor:not-allowed; }
+    /* ---- Pagamento ---- */
+    .resumo-linha { display:flex;justify-content:space-between;font-size:14px;padding:7px 0;color:var(--texto-suave); }
+    .resumo-linha strong { color:var(--texto); }
+    .resumo-total { display:flex;justify-content:space-between;font-size:17px;font-weight:800;padding:12px 0 4px;border-top:1px solid var(--vidro-borda);margin-top:8px; }
+    .resumo-total span:last-child { color:var(--acento); }
+    .metodo { display:flex;gap:10px;margin:14px 0; }
+    .metodo .opcao { flex:1;padding:13px;text-align:center;border-radius:var(--raio-pq);background:rgba(255,255,255,.06);border:1.5px solid var(--vidro-borda);cursor:pointer;font-size:14px;font-weight:600;transition:var(--transicao); }
+    .metodo .opcao.selecionado { border-color:var(--acento);background:rgba(0,212,170,.12); }
+    .pix-caixa { text-align:center;padding:16px;background:rgba(255,255,255,.05);border-radius:var(--raio-pq); }
+    .pix-qr { width:130px;height:130px;margin:0 auto 12px;border-radius:12px;background:
+      repeating-conic-gradient(#fff 0% 25%, #16305c 0% 50%) 50% / 26px 26px;
+      border:8px solid #fff; }
+    .pix-codigo { font-size:11px;color:var(--texto-suave);word-break:break-all;background:rgba(0,0,0,.25);padding:9px;border-radius:8px;cursor:pointer; }
+    /* ---- Confirmação ---- */
+    .icone-sucesso { width:76px;height:76px;margin:6px auto 14px;border-radius:50%;background:rgba(46,229,157,.15);border:2px solid var(--sucesso);display:flex;align-items:center;justify-content:center;font-size:36px; }
+    .selo-pago { display:inline-block;background:rgba(46,229,157,.16);border:1px solid var(--sucesso);color:var(--sucesso);font-size:12px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:1px; }
+    .contagem { font-size:13px;color:var(--texto-suave);margin:10px 0 16px;text-align:center; }
+    /* ---- Videochamada ---- */
+    .area-video { position:relative;width:100%;aspect-ratio:3/4;max-height:52vh;border-radius:var(--raio-pq);overflow:hidden;background:#0d1f3c;border:1px solid var(--vidro-borda); }
+    .video-remoto { width:100%;height:100%;object-fit:cover; }
+    .placeholder-remoto { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(160deg,#24477f,#16305c); }
+    .placeholder-remoto .avatar-g { width:86px;height:86px;border-radius:50%;background:rgba(0,212,170,.16);display:flex;align-items:center;justify-content:center;font-size:44px;animation:pulsar 2s infinite; }
+    @keyframes pulsar { 0%,100%{box-shadow:0 0 0 0 rgba(0,212,170,.35);} 50%{box-shadow:0 0 0 14px rgba(0,212,170,0);} }
+    .video-local { position:absolute;right:10px;bottom:10px;width:30%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;border:2px solid var(--acento);background:#000; }
+    .info-chamada { position:absolute;top:10px;left:10px;background:rgba(10,24,48,.7);backdrop-filter:blur(6px);padding:6px 12px;border-radius:10px;font-size:12px; }
+    .timer { position:absolute;top:10px;right:10px;background:rgba(10,24,48,.7);padding:6px 12px;border-radius:10px;font-size:12px;font-weight:700;color:var(--acento); }
+    .controles { display:flex;justify-content:center;gap:12px;margin:16px 0; }
+    .controle { width:50px;height:50px;border-radius:50%;border:1px solid var(--vidro-borda);background:var(--vidro-forte);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transicao); }
+    .controle:hover { background:rgba(255,255,255,.24); }
+    .controle.desligado { background:var(--perigo);border-color:var(--perigo); }
+    .controle.encerrar { background:linear-gradient(135deg,#ff5c7a,#d63a5c);border:none;width:58px;height:58px;font-size:24px; }
+    .chat { background:rgba(255,255,255,.05);border:1px solid var(--vidro-borda);border-radius:var(--raio-pq);padding:12px; }
+    .chat-msgs { height:130px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px;padding-right:4px; }
+    .msg { max-width:80%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.4; }
+    .msg.eu { align-self:flex-end;background:rgba(0,212,170,.2);border:1px solid rgba(0,212,170,.4); }
+    .msg.outro { align-self:flex-start;background:rgba(255,255,255,.1);border:1px solid var(--vidro-borda); }
+    .chat-form { display:flex;gap:8px; }
+    .chat-form .campo { padding:10px 14px;font-size:13px; }
+    .chat-form button { width:46px;flex-shrink:0;border:none;border-radius:10px;background:var(--acento);color:#06392e;font-size:17px;cursor:pointer;font-weight:800; }
+    /* ---- Avaliação ---- */
+    .estrelas-avaliacao { display:flex;justify-content:center;gap:8px;margin:16px 0; }
+    .estrela { font-size:34px;cursor:pointer;color:rgba(255,255,255,.25);transition:var(--transicao); }
+    .estrela.acesa { color:#ffc94d;text-shadow:0 0 12px rgba(255,201,77,.6); }
+  </style>
+  <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
+</head>
+<body>
+  <div class="app-container">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3l9-8z"/></svg>
+      </div>
+      <div class="logo-texto">ZELAR<span>+</span></div>
+    </div>
+    <p class="subtitulo">Médico(a)</p>
+
+    <div class="progresso" id="progresso"></div>
+
+    <!-- PASSO 1: serviços -->
+    <div class="passo ativo" id="passo-1">
+      <div class="cartao brilho">
+        <h1>Escolha o serviço</h1>
+        <p class="descricao">Selecione o atendimento desejado</p>
+        <div class="lista-opcoes" id="lista-servicos"></div>
+        <button class="botao" id="btn-continuar-1" disabled>Continuar</button>
+      </div>
+    </div>
+
+    <!-- PASSO 2 (presencial): endereço -->
+    <div class="passo" id="passo-2p">
+      <div class="cartao brilho">
+        <h1>Onde será o atendimento?</h1>
+        <p class="descricao">Informe o endereço completo</p>
+        <div class="grupo">
+          <label for="endereco">Endereço</label>
+          <input type="text" id="endereco" class="campo" placeholder="Rua, número, bairro, cidade" />
+          <span class="msg-erro" id="erro-endereco">Informe um endereço válido.</span>
+        </div>
+        <div class="linha">
+          <button class="botao secundario" data-voltar="1">Voltar</button>
+          <button class="botao" id="btn-buscar-mapa" disabled>Buscar profissional</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 2 (vídeo): profissionais -->
+    <div class="passo" id="passo-2v">
+      <div class="cartao brilho">
+        <h1>Escolha o profissional</h1>
+        <p class="descricao">Apenas profissionais online podem ser selecionados</p>
+        <div class="lista-opcoes" id="lista-profissionais"></div>
+        <div class="linha">
+          <button class="botao secundario" data-voltar="1">Voltar</button>
+          <button class="botao" id="btn-continuar-2v" disabled>Continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 3 (vídeo): agendamento -->
+    <div class="passo" id="passo-3v">
+      <div class="cartao brilho">
+        <h1>Agende a consulta</h1>
+        <p class="descricao">Escolha o dia e o horário</p>
+
+        <div class="calendario">
+          <div class="cal-cab">
+            <button type="button" id="mes-anterior">‹</button>
+            <strong id="mes-titulo"></strong>
+            <button type="button" id="mes-proximo">›</button>
+          </div>
+          <div class="cal-grade" id="cal-grade"></div>
+        </div>
+
+        <div class="horarios" id="horarios"></div>
+
+        <p class="contagem" id="selecao-resumo">Nenhuma data selecionada</p>
+
+        <div class="linha">
+          <button class="botao secundario" data-voltar="2v">Voltar</button>
+          <button class="botao" id="btn-continuar-3v" disabled>Continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 4 (vídeo): pagamento -->
+    <div class="passo" id="passo-4v">
+      <div class="cartao brilho">
+        <h1>Pagamento</h1>
+        <p class="descricao">Confira os dados e escolha a forma de pagamento</p>
+
+        <div id="resumo-pagamento"></div>
+
+        <div class="metodo">
+          <div class="opcao selecionado" data-metodo="pix">PIX</div>
+          <div class="opcao" data-metodo="cartao">Cartão de crédito</div>
+        </div>
+
+        <div id="area-pix" class="pix-caixa">
+          <div class="pix-qr"></div>
+          <div class="pix-codigo" id="pix-codigo">00020126580014BR.GOV.BCB.PIX0136zelar-plus-pagamento520400005303986540300005204BR5204ZELARPLUS6009SAO PAULO62070503***6304AB12</div>
+          <p class="texto-suave mt-8" style="font-size:11px">Toque no código para copiar (PIX copia e cola)</p>
+        </div>
+
+        <div id="area-cartao" class="oculto">
+          <div class="grupo">
+            <label for="cc-numero">Número do cartão</label>
+            <input type="text" id="cc-numero" class="campo" placeholder="0000 0000 0000 0000" inputmode="numeric" maxlength="19" />
+          </div>
+          <div class="linha">
+            <div class="grupo">
+              <label for="cc-validade">Validade</label>
+              <input type="text" id="cc-validade" class="campo" placeholder="MM/AA" inputmode="numeric" maxlength="5" />
+            </div>
+            <div class="grupo">
+              <label for="cc-cvv">CVV</label>
+              <input type="text" id="cc-cvv" class="campo" placeholder="123" inputmode="numeric" maxlength="4" />
+            </div>
+          </div>
+        </div>
+
+        <div class="linha mt-16">
+          <button class="botao secundario" data-voltar="3v">Voltar</button>
+          <button class="botao" id="btn-pagar">Pagar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 5 (vídeo): confirmação -->
+    <div class="passo" id="passo-5v">
+      <div class="cartao brilho">
+        <div class="icone-sucesso">✓</div>
+        <h1 class="centralizar">Agendamento confirmado!</h1>
+        <p class="descricao">Sua consulta está marcada</p>
+
+        <div id="resumo-confirmacao"></div>
+
+        <div class="centralizar mt-16"><span class="selo-pago">PAGO</span></div>
+
+        <p class="contagem" id="contagem"></p>
+
+        <button class="botao" id="btn-entrar-chamada" disabled>Entrar na chamada</button>
+        <a class="link-suave" href="#" id="link-demo">Entrar mesmo assim (demonstração)</a>
+      </div>
+    </div>
+
+    <!-- PASSO 6 (vídeo): videochamada -->
+    <div class="passo" id="passo-6v">
+      <div class="cartao">
+        <div class="area-video">
+          <video class="video-remoto" id="video-remoto" autoplay playsinline></video>
+          <div class="placeholder-remoto" id="placeholder-remoto">
+            <div class="avatar-g" id="avatar-chamada">👨‍⚕️</div>
+            <strong id="nome-chamada">Profissional</strong>
+            <span class="texto-suave" style="font-size:12px" id="status-chamada">Conectando...</span>
+          </div>
+          <video class="video-local" id="video-local" autoplay playsinline muted></video>
+          <div class="info-chamada" id="info-chamada">Médico(a)</div>
+          <div class="timer" id="timer">00:00</div>
+        </div>
+
+        <div class="controles">
+          <button class="controle" id="ctrl-mic" title="Microfone">🎙️</button>
+          <button class="controle" id="ctrl-cam" title="Câmera">📷</button>
+          <button class="controle encerrar" id="ctrl-fim" title="Encerrar">📵</button>
+          <button class="controle" id="ctrl-tela" title="Compartilhar tela">🖥️</button>
+          <button class="controle" id="ctrl-chat" title="Chat">💬</button>
+        </div>
+
+        <div class="chat" id="chat">
+          <div class="chat-msgs" id="chat-msgs">
+            <div class="msg outro">Olá! Sou o Dr. Carlos, pode falar, estou ouvindo. 👋</div>
+          </div>
+          <form class="chat-form" id="chat-form">
+            <input type="text" class="campo" id="chat-input" placeholder="Digite uma mensagem..." autocomplete="off" />
+            <button type="submit">➤</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de avaliação -->
+  <div class="modal-fundo" id="modal-avaliacao">
+    <div class="modal">
+      <h2 class="centralizar">Avalie o atendimento</h2>
+      <p class="descricao">Como foi sua experiência?</p>
+      <div class="estrelas-avaliacao" id="estrelas-avaliacao">
+        <span class="estrela" data-nota="1">★</span>
+        <span class="estrela" data-nota="2">★</span>
+        <span class="estrela" data-nota="3">★</span>
+        <span class="estrela" data-nota="4">★</span>
+        <span class="estrela" data-nota="5">★</span>
+      </div>
+      <textarea class="campo" id="comentario" rows="3" placeholder="Deixe um comentário (opcional)"></textarea>
+      <button class="botao mt-16" id="btn-enviar-avaliacao">Enviar avaliação</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="overlay-loading" id="loading"><div class="spinner"></div><p id="loading-texto">Processando...</p></div>
+
+  <script>
+    /* ================= DADOS ================= */
+    const SERVICOS = [{"nome": "Consulta Médica Domiciliar", "preco": 450.0, "tipo": "presencial", "icone": "🏠", "detalhe": "Médico vai até sua casa"}, {"nome": "Teleconsulta Médica", "preco": 300.0, "tipo": "video", "icone": "📹", "detalhe": "Consulta por videochamada"}, {"nome": "Avaliação Clínica Completa", "preco": 500.0, "tipo": "presencial", "icone": "🩺", "detalhe": "Check-up completo em domicílio"}, {"nome": "Emissão de Relatório Médico", "preco": 250.0, "tipo": "presencial", "icone": "📄", "detalhe": "Relatórios e atestados médicos"}, {"nome": "Acompanhamento Médico Mensal", "preco": 1800.0, "tipo": "presencial", "icone": "📅", "detalhe": "Visitas mensais recorrentes"}];
+    const PROFISSIONAIS = [{"nome": "Dr. Carlos Mendes", "registro": "CRM 123456-SP", "desde": 2009, "nota": 4.9, "avaliacoes": 127, "preco": 300.0, "online": true, "avatar": "👨‍⚕️", "esp": "Clínico Geral", "genero": "m"}, {"nome": "Dra. Ana Paula Santos", "registro": "CRM 234567-RJ", "desde": 2012, "nota": 4.8, "avaliacoes": 98, "preco": 320.0, "online": true, "avatar": "👩‍⚕️", "esp": "Geriatra", "genero": "f"}, {"nome": "Dr. Roberto Lima", "registro": "CRM 345678-MG", "desde": 2015, "nota": 4.7, "avaliacoes": 76, "preco": 280.0, "online": false, "avatar": "👨‍⚕️", "esp": "Cardiologista", "genero": "m"}, {"nome": "Dra. Fernanda Costa", "registro": "CRM 456789-SP", "desde": 2011, "nota": 5.0, "avaliacoes": 203, "preco": 350.0, "online": true, "avatar": "👩‍⚕️", "esp": "Clínica Geral", "genero": "f"}];
+    const TIPO_SLUG = "medico";
+    const ROTULO_CONSELHO = "CRM";
+
+    /* ================= ESTADO ================= */
+    const estado = {
+      servico: null,
+      profissional: null,
+      data: null,
+      hora: null,
+      metodo: "pix",
+      streamLocal: null,
+      streamRemoto: null,
+      micOn: true,
+      camOn: true,
+      timerInt: null,
+      segundos: 0,
+      nota: 0
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const toast = $("toast");
+
+    function mostrarToast(msg, tipo = "") {
+      toast.textContent = msg;
+      toast.className = "toast visivel" + (tipo ? " " + tipo : "");
+      clearTimeout(mostrarToast._t);
+      mostrarToast._t = setTimeout(() => (toast.className = "toast"), 3000);
+    }
+
+    function formatarPreco(v) {
+      return "R$ " + v.toFixed(2).replace(".", ",");
+    }
+
+    /* ================= PROGRESSO ================= */
+    function renderDots(total, ativo) {
+      const c = $("progresso");
+      c.innerHTML = "";
+      for (let i = 1; i <= total; i++) {
+        const d = document.createElement("div");
+        d.className = "dot" + (i === ativo ? " ativo" : i < ativo ? " feito" : "");
+        c.appendChild(d);
+      }
+    }
+
+    function irPara(passoId, dotTotal, dotAtivo) {
+      document.querySelectorAll(".passo").forEach((p) => p.classList.remove("ativo"));
+      $(passoId).classList.add("ativo");
+      renderDots(dotTotal, dotAtivo);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.querySelectorAll("[data-voltar]").forEach((b) => {
+      b.addEventListener("click", () => irPara("passo-" + b.dataset.voltar, estado.servico && estado.servico.tipo === "video" ? 5 : 3, parseInt(b.dataset.voltar.replace("v", "").replace("p", "")) || 1));
+    });
+
+    /* ================= PASSO 1: serviços ================= */
+    const listaServicos = $("lista-servicos");
+    SERVICOS.forEach((s, i) => {
+      const el = document.createElement("div");
+      el.className = "cartao-opcao";
+      el.dataset.tipo = s.tipo;
+      el.innerHTML = `
+        <div class="icone">${s.icone}</div>
+        <div class="info">
+          <div class="titulo">${s.nome}</div>
+          <div class="detalhe">${s.detalhe} · ${s.tipo === "video" ? "por vídeo" : "presencial"}</div>
+        </div>
+        <div class="preco">${formatarPreco(s.preco)}</div>`;
+      el.addEventListener("click", () => {
+        document.querySelectorAll("#lista-servicos .cartao-opcao").forEach((c) => c.classList.remove("selecionado"));
+        el.classList.add("selecionado");
+        estado.servico = s;
+        $("btn-continuar-1").disabled = false;
+      });
+      listaServicos.appendChild(el);
+    });
+
+    $("btn-continuar-1").addEventListener("click", () => {
+      if (!estado.servico) return;
+      if (estado.servico.tipo === "video") {
+        renderProfissionais();
+        irPara("passo-2v", 5, 2);
+      } else {
+        irPara("passo-2p", 3, 2);
+      }
+    });
+
+    /* ================= PASSO 2P: endereço → mapa ================= */
+    const endereco = $("endereco");
+    endereco.addEventListener("input", () => {
+      const ok = endereco.value.trim().length >= 8;
+      endereco.classList.toggle("valido", ok);
+      endereco.classList.toggle("invalido", endereco.value.length > 0 && !ok);
+      $("erro-endereco").classList.toggle("visivel", endereco.value.length > 0 && !ok);
+      $("btn-buscar-mapa").disabled = !ok;
+    });
+
+    $("btn-buscar-mapa").addEventListener("click", () => {
+      const params = new URLSearchParams({
+        tipo: TIPO_SLUG,
+        servico: estado.servico.nome,
+        endereco: endereco.value.trim(),
+        servico_selecionado: estado.servico.nome,
+        preco: estado.servico.preco.toFixed(2)
+      });
+      document.body.classList.add("fade-out");
+      setTimeout(() => (window.location.href = "../mapa/mapa.html?" + params.toString()), 350);
+    });
+
+    /* ================= PASSO 2V: profissionais ================= */
+    function renderProfissionais() {
+      const lista = $("lista-profissionais");
+      lista.innerHTML = "";
+      PROFISSIONAIS.forEach((p) => {
+        const estrelas = "★".repeat(Math.round(p.nota)) + "☆".repeat(5 - Math.round(p.nota));
+        const el = document.createElement("div");
+        el.className = "cartao-opcao" + (p.online ? "" : " desabilitado");
+        el.innerHTML = `
+          <div class="avatar">${p.avatar}<span class="status ${p.online ? "online" : ""}"></span></div>
+          <div class="info">
+            <div class="titulo">${p.nome}</div>
+            <div class="detalhe">${p.registro} · formad${p.genero === "f" ? "a" : "o"} em ${p.desde}</div>
+            <div class="detalhe"><span class="estrelas">${estrelas}</span> ${p.nota.toFixed(1)} (${p.avaliacoes})</div>
+          </div>
+          <div class="preco">${formatarPreco(p.preco)}</div>`;
+        if (p.online) {
+          el.addEventListener("click", () => {
+            document.querySelectorAll("#lista-profissionais .cartao-opcao").forEach((c) => c.classList.remove("selecionado"));
+            el.classList.add("selecionado");
+            estado.profissional = p;
+            $("btn-continuar-2v").disabled = false;
+          });
+        } else {
+          el.title = "Profissional offline no momento";
+        }
+        lista.appendChild(el);
+      });
+    }
+
+    $("btn-continuar-2v").addEventListener("click", () => {
+      if (!estado.profissional) return;
+      irPara("passo-3v", 5, 3);
+      renderCalendario();
+    });
+
+    /* ================= PASSO 3V: agendamento ================= */
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    let mesVisivel = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    const NOMES_MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+
+    function renderCalendario() {
+      $("mes-titulo").textContent = NOMES_MESES[mesVisivel.getMonth()] + " " + mesVisivel.getFullYear();
+      const grade = $("cal-grade");
+      grade.innerHTML = "";
+      ["D","S","T","Q","Q","S","S"].forEach((d) => {
+        grade.innerHTML += `<div class="cal-dow">${d}</div>`;
+      });
+      const primeiro = new Date(mesVisivel.getFullYear(), mesVisivel.getMonth(), 1);
+      const totalDias = new Date(mesVisivel.getFullYear(), mesVisivel.getMonth() + 1, 0).getDate();
+      for (let i = 0; i < primeiro.getDay(); i++) grade.innerHTML += `<div class="cal-dia vazio"></div>`;
+      for (let d = 1; d <= totalDias; d++) {
+        const data = new Date(mesVisivel.getFullYear(), mesVisivel.getMonth(), d);
+        const el = document.createElement("div");
+        el.className = "cal-dia";
+        el.textContent = d;
+        if (data < hoje) el.classList.add("desabilitado");
+        if (estado.data && data.getTime() === estado.data.getTime()) el.classList.add("selecionado");
+        el.addEventListener("click", () => {
+          if (data < hoje) return;
+          estado.data = data;
+          estado.hora = null;
+          renderCalendario();
+          renderHorarios();
+        });
+        grade.appendChild(el);
+      }
+    }
+
+    $("mes-anterior").addEventListener("click", () => {
+      const m = new Date(mesVisivel.getFullYear(), mesVisivel.getMonth() - 1, 1);
+      if (m >= new Date(hoje.getFullYear(), hoje.getMonth(), 1)) { mesVisivel = m; renderCalendario(); }
+    });
+    $("mes-proximo").addEventListener("click", () => {
+      mesVisivel = new Date(mesVisivel.getFullYear(), mesVisivel.getMonth() + 1, 1);
+      renderCalendario();
+    });
+
+    function renderHorarios() {
+      const c = $("horarios");
+      c.innerHTML = "";
+      const agora = new Date();
+      for (let h = 8; h <= 18; h++) {
+        const horaTxt = String(h).padStart(2, "0") + ":00";
+        const el = document.createElement("div");
+        el.className = "horario";
+        el.textContent = horaTxt;
+        const ehHoje = estado.data && estado.data.getTime() === hoje.getTime();
+        const passou = ehHoje && h < agora.getHours();
+        if (passou) el.classList.add("desabilitado");
+        if (estado.hora === horaTxt) el.classList.add("selecionado");
+        el.addEventListener("click", () => {
+          if (passou) return;
+          estado.hora = horaTxt;
+          renderHorarios();
+          atualizarResumoSelecao();
+        });
+        c.appendChild(el);
+      }
+      atualizarResumoSelecao();
+    }
+
+    function atualizarResumoSelecao() {
+      const r = $("selecao-resumo");
+      if (estado.data && estado.hora) {
+        r.textContent = "📅 " + estado.data.toLocaleDateString("pt-BR") + " às " + estado.hora;
+        $("btn-continuar-3v").disabled = false;
+      } else if (estado.data) {
+        r.textContent = "📅 " + estado.data.toLocaleDateString("pt-BR") + " — escolha o horário";
+        $("btn-continuar-3v").disabled = true;
+      } else {
+        r.textContent = "Nenhuma data selecionada";
+        $("btn-continuar-3v").disabled = true;
+      }
+    }
+
+    $("btn-continuar-3v").addEventListener("click", () => {
+      renderResumoPagamento();
+      irPara("passo-4v", 5, 4);
+    });
+
+    /* ================= PASSO 4V: pagamento ================= */
+    function linhaResumo(rotulo, valor) {
+      return `<div class="resumo-linha"><span>${rotulo}</span><strong>${valor}</strong></div>`;
+    }
+
+    function renderResumoPagamento() {
+      const total = estado.profissional.preco;
+      $("resumo-pagamento").innerHTML =
+        linhaResumo("Serviço", estado.servico.nome) +
+        linhaResumo("Profissional", estado.profissional.nome) +
+        linhaResumo("Data", estado.data.toLocaleDateString("pt-BR") + " às " + estado.hora) +
+        `<div class="resumo-total"><span>Total</span><span>${formatarPreco(total)}</span></div>`;
+      $("pix-codigo").textContent = $("pix-codigo").textContent.replace("30000", "");
+      $("btn-pagar").textContent = "Pagar " + formatarPreco(total);
+    }
+
+    document.querySelectorAll(".metodo .opcao").forEach((o) => {
+      o.addEventListener("click", () => {
+        document.querySelectorAll(".metodo .opcao").forEach((x) => x.classList.remove("selecionado"));
+        o.classList.add("selecionado");
+        estado.metodo = o.dataset.metodo;
+        $("area-pix").classList.toggle("oculto", estado.metodo !== "pix");
+        $("area-cartao").classList.toggle("oculto", estado.metodo !== "cartao");
+      });
+    });
+
+    $("pix-codigo").addEventListener("click", () => {
+      const codigo = $("pix-codigo").textContent;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(codigo).then(() => mostrarToast("Código PIX copiado!", "sucesso"));
+      } else {
+        mostrarToast("Código PIX pronto para copiar", "sucesso");
+      }
+    });
+
+    // Máscaras do cartão
+    $("cc-numero").addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/\D/g, "").slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");
+    });
+    $("cc-validade").addEventListener("input", (e) => {
+      let v = e.target.value.replace(/\D/g, "").slice(0, 4);
+      if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+      e.target.value = v;
+    });
+    $("cc-cvv").addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+    });
+
+    $("btn-pagar").addEventListener("click", () => {
+      if (estado.metodo === "cartao") {
+        const num = $("cc-numero").value.replace(/\s/g, "");
+        if (num.length < 16 || $("cc-validade").value.length < 5 || $("cc-cvv").value.length < 3) {
+          mostrarToast("Verifique os dados do cartão.", "erro");
+          return;
+        }
+      }
+      $("loading-texto").textContent = "Processando pagamento...";
+      $("loading").classList.add("visivel");
+      setTimeout(() => {
+        $("loading").classList.remove("visivel");
+        renderConfirmacao();
+        irPara("passo-5v", 5, 5);
+      }, 1600);
+    });
+
+    /* ================= PASSO 5V: confirmação ================= */
+    function dataHoraConsulta() {
+      const d = new Date(estado.data);
+      d.setHours(parseInt(estado.hora.slice(0, 2)), 0, 0, 0);
+      return d;
+    }
+
+    function renderConfirmacao() {
+      $("resumo-confirmacao").innerHTML =
+        linhaResumo("Serviço", estado.servico.nome) +
+        linhaResumo("Profissional", estado.profissional.nome) +
+        linhaResumo(ROTULO_CONSELHO, estado.profissional.registro) +
+        linhaResumo("Data", estado.data.toLocaleDateString("pt-BR") + " às " + estado.hora) +
+        linhaResumo("Forma de pagamento", estado.metodo === "pix" ? "PIX" : "Cartão de crédito") +
+        `<div class="resumo-total"><span>Total pago</span><span>${formatarPreco(estado.profissional.preco)}</span></div>`;
+
+      localStorage.setItem("zelar_agendamento", JSON.stringify({
+        servico: estado.servico.nome,
+        profissional: estado.profissional.nome,
+        data: estado.data.toISOString(),
+        hora: estado.hora,
+        metodo: estado.metodo,
+        valor: estado.profissional.preco,
+        status: "PAGO"
+      }));
+
+      atualizarContagem();
+      setInterval(atualizarContagem, 1000);
+    }
+
+    function atualizarContagem() {
+      const alvo = dataHoraConsulta();
+      const diff = alvo - new Date();
+      const btn = $("btn-entrar-chamada");
+      if (diff <= 5 * 60 * 1000 && diff >= -60 * 60 * 1000) {
+        $("contagem").textContent = "Sua consulta está prestes a começar!";
+        btn.disabled = false;
+      } else if (diff > 0) {
+        const dias = Math.floor(diff / 86400000);
+        const horas = Math.floor((diff % 86400000) / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const segs = Math.floor((diff % 60000) / 1000);
+        let txt = "Faltam ";
+        if (dias > 0) txt += dias + "d ";
+        txt += horas + "h " + mins + "min " + segs + "s para a consulta";
+        $("contagem").textContent = txt;
+        btn.disabled = true;
+      } else {
+        $("contagem").textContent = "Horário da consulta";
+        btn.disabled = false;
+      }
+    }
+
+    $("btn-entrar-chamada").addEventListener("click", iniciarChamada);
+    $("link-demo").addEventListener("click", (e) => { e.preventDefault(); iniciarChamada(); });
+
+    /* ================= PASSO 6V: videochamada ================= */
+    async function iniciarChamada() {
+      irPara("passo-6v", 5, 5);
+      $("avatar-chamada").textContent = estado.profissional.avatar;
+      $("nome-chamada").textContent = estado.profissional.nome;
+      $("info-chamada").textContent = estado.servico.nome;
+
+      // Câmera local (real)
+      try {
+        estado.streamLocal = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: true
+        });
+        $("video-local").srcObject = estado.streamLocal;
+      } catch (e) {
+        mostrarToast("Câmera/microfone indisponíveis neste aparelho.", "erro");
+      }
+
+      // Vídeo remoto: tenta uma segunda câmera real do aparelho
+      try {
+        const dispositivos = await navigator.mediaDevices.enumerateDevices();
+        const cameras = dispositivos.filter((d) => d.kind === "videoinput");
+        if (cameras.length > 1) {
+          const outra = cameras.find((c) => !estado.streamLocal || !estado.streamLocal.getVideoTracks().some((t) => t.label === c.label)) || cameras[1];
+          estado.streamRemoto = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: outra.deviceId } }, audio: false });
+          $("video-remoto").srcObject = estado.streamRemoto;
+          $("placeholder-remoto").style.display = "none";
+        } else {
+          $("status-chamada").textContent = "Em chamada de vídeo";
+          setTimeout(() => { $("status-chamada").textContent = "Conectado"; }, 1800);
+        }
+      } catch (e) {
+        $("status-chamada").textContent = "Conectado";
+      }
+
+      // Timer
+      estado.segundos = 0;
+      clearInterval(estado.timerInt);
+      estado.timerInt = setInterval(() => {
+        estado.segundos++;
+        const m = String(Math.floor(estado.segundos / 60)).padStart(2, "0");
+        const s = String(estado.segundos % 60).padStart(2, "0");
+        $("timer").textContent = m + ":" + s;
+      }, 1000);
+    }
+
+    function encerrarChamada() {
+      clearInterval(estado.timerInt);
+      if (estado.streamLocal) estado.streamLocal.getTracks().forEach((t) => t.stop());
+      if (estado.streamRemoto) estado.streamRemoto.getTracks().forEach((t) => t.stop());
+      estado.streamLocal = estado.streamRemoto = null;
+      $("modal-avaliacao").classList.add("visivel");
+    }
+
+    $("ctrl-fim").addEventListener("click", encerrarChamada);
+
+    $("ctrl-mic").addEventListener("click", () => {
+      estado.micOn = !estado.micOn;
+      if (estado.streamLocal) estado.streamLocal.getAudioTracks().forEach((t) => (t.enabled = estado.micOn));
+      $("ctrl-mic").classList.toggle("desligado", !estado.micOn);
+      mostrarToast(estado.micOn ? "Microfone ligado" : "Microfone desligado");
+    });
+
+    $("ctrl-cam").addEventListener("click", () => {
+      estado.camOn = !estado.camOn;
+      if (estado.streamLocal) estado.streamLocal.getVideoTracks().forEach((t) => (t.enabled = estado.camOn));
+      $("ctrl-cam").classList.toggle("desligado", !estado.camOn);
+      mostrarToast(estado.camOn ? "Câmera ligada" : "Câmera desligada");
+    });
+
+    $("ctrl-tela").addEventListener("click", async () => {
+      try {
+        const tela = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        $("video-remoto").srcObject = tela;
+        $("placeholder-remoto").style.display = "none";
+        tela.getVideoTracks()[0].onended = () => {
+          if (estado.streamRemoto) $("video-remoto").srcObject = estado.streamRemoto;
+          else $("placeholder-remoto").style.display = "flex";
+        };
+        mostrarToast("Compartilhando tela", "sucesso");
+      } catch (e) {
+        mostrarToast("Compartilhamento cancelado.");
+      }
+    });
+
+    $("ctrl-chat").addEventListener("click", () => {
+      $("chat").classList.toggle("oculto");
+    });
+
+    /* ---- Chat ---- */
+    const RESPOSTAS = [
+      "Entendi. Pode me contar mais?",
+      "Certo, estou anotando aqui.",
+      "Perfeito, vamos continuar.",
+      "Compreendo. E como você tem se sentido?",
+      "Muito bem, obrigado por compartilhar."
+    ];
+
+    $("chat-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = $("chat-input");
+      const texto = input.value.trim();
+      if (!texto) return;
+      adicionarMsg(texto, "eu");
+      input.value = "";
+      setTimeout(() => {
+        adicionarMsg(RESPOSTAS[Math.floor(Math.random() * RESPOSTAS.length)], "outro");
+      }, 1200);
+    });
+
+    function adicionarMsg(texto, quem) {
+      const el = document.createElement("div");
+      el.className = "msg " + quem;
+      el.textContent = texto;
+      $("chat-msgs").appendChild(el);
+      $("chat-msgs").scrollTop = $("chat-msgs").scrollHeight;
+    }
+
+    /* ================= Avaliação ================= */
+    document.querySelectorAll("#estrelas-avaliacao .estrela").forEach((estrela) => {
+      estrela.addEventListener("click", () => {
+        estado.nota = parseInt(estrela.dataset.nota);
+        document.querySelectorAll("#estrelas-avaliacao .estrela").forEach((e2) => {
+          e2.classList.toggle("acesa", parseInt(e2.dataset.nota) <= estado.nota);
+        });
+      });
+    });
+
+    $("btn-enviar-avaliacao").addEventListener("click", () => {
+      localStorage.setItem("zelar_avaliacao", JSON.stringify({
+        profissional: estado.profissional ? estado.profissional.nome : null,
+        nota: estado.nota,
+        comentario: $("comentario").value.trim(),
+        data: new Date().toISOString()
+      }));
+      $("modal-avaliacao").classList.remove("visivel");
+      mostrarToast("Obrigado pela avaliação!", "sucesso");
+      setTimeout(() => {
+        document.body.classList.add("fade-out");
+        setTimeout(() => (window.location.href = "./index.html"), 400);
+      }, 900);
+    });
+
+    /* ================= Início ================= */
+    renderDots(3, 1);
+  </script>
+</body>
+</html>
