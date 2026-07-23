@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ZELAR+ - Nutricionista</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+</head>
+<body>
+  <div class="app-container">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3l9-8z"/></svg>
+      </div>
+      <div class="logo-texto">ZELAR<span>+</span></div>
+    </div>
+    <p class="subtitulo">Nutricionista</p>
+
+    <div class="progresso">
+      <div class="dot ativo" id="dot-1"></div>
+      <div class="dot" id="dot-2"></div>
+      <div class="dot" id="dot-3"></div>
+    </div>
+
+    <!-- ETAPA 1: escolha do serviço -->
+    <div class="passo ativo" id="passo-1">
+      <div class="cartao brilho">
+        <h1>Escolha o serviço</h1>
+        <p class="descricao">Selecione o tipo de cuidado desejado</p>
+
+        <div class="lista-opcoes" id="lista-servicos">
+          <div class="cartao-opcao" data-servico="Consulta Nutricional Domiciliar" data-preco="180.00">
+            <div class="icone">🔍</div>
+            <div class="info">
+              <div class="titulo">Consulta Nutricional Domiciliar</div>
+              <div class="detalhe">Avaliação nutricional completa</div>
+            </div>
+            <div class="preco">R$ 180,00</div>
+          </div>
+          <div class="cartao-opcao" data-servico="Plano Alimentar Personalizado" data-preco="200.00">
+            <div class="icone">📋</div>
+            <div class="info">
+              <div class="titulo">Plano Alimentar Personalizado</div>
+              <div class="detalhe">Dieta individualizada</div>
+            </div>
+            <div class="preco">R$ 200,00</div>
+          </div>
+          <div class="cartao-opcao" data-servico="Nutrição Clínica e Enteral" data-preco="220.00">
+            <div class="icone">🍼</div>
+            <div class="info">
+              <div class="titulo">Nutrição Clínica e Enteral</div>
+              <div class="detalhe">Acompanhamento de sonda e suplementos</div>
+            </div>
+            <div class="preco">R$ 220,00</div>
+          </div>
+          <div class="cartao-opcao" data-servico="Acompanhamento Mensal" data-preco="600.00">
+            <div class="icone">📅</div>
+            <div class="info">
+              <div class="titulo">Acompanhamento Mensal</div>
+              <div class="detalhe">4 visitas no mês</div>
+            </div>
+            <div class="preco">R$ 600,00</div>
+          </div>
+        </div>
+
+        <button class="botao" id="btn-continuar" disabled>Continuar</button>
+      </div>
+    </div>
+
+    <!-- ETAPA 2: endereço -->
+    <div class="passo" id="passo-2">
+      <div class="cartao brilho">
+        <h1>Onde será o atendimento?</h1>
+        <p class="descricao">Informe o endereço completo</p>
+
+        <div class="grupo">
+          <label for="endereco">Endereço</label>
+          <input type="text" id="endereco" class="campo" placeholder="Rua, número, bairro, cidade" />
+          <span class="msg-erro" id="erro-endereco">Informe um endereço válido.</span>
+        </div>
+
+        <div class="linha">
+          <button class="botao secundario" id="btn-voltar">Voltar</button>
+          <button class="botao" id="btn-buscar" disabled>Buscar profissional</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const servicos = document.querySelectorAll("#lista-servicos .cartao-opcao");
+    const btnContinuar = document.getElementById("btn-continuar");
+    const btnVoltar = document.getElementById("btn-voltar");
+    const btnBuscar = document.getElementById("btn-buscar");
+    const endereco = document.getElementById("endereco");
+    let servicoSelecionado = null;
+
+    servicos.forEach((cartao) => {
+      cartao.addEventListener("click", () => {
+        servicos.forEach((c) => c.classList.remove("selecionado"));
+        cartao.classList.add("selecionado");
+        servicoSelecionado = {
+          nome: cartao.dataset.servico,
+          preco: cartao.dataset.preco
+        };
+        btnContinuar.disabled = false;
+      });
+    });
+
+    btnContinuar.addEventListener("click", () => {
+      document.getElementById("passo-1").classList.remove("ativo");
+      document.getElementById("passo-2").classList.add("ativo");
+      document.getElementById("dot-1").classList.replace("ativo", "feito");
+      document.getElementById("dot-2").classList.add("ativo");
+    });
+
+    btnVoltar.addEventListener("click", () => {
+      document.getElementById("passo-2").classList.remove("ativo");
+      document.getElementById("passo-1").classList.add("ativo");
+      document.getElementById("dot-1").classList.replace("feito", "ativo");
+      document.getElementById("dot-2").classList.remove("ativo");
+    });
+
+    endereco.addEventListener("input", () => {
+      const ok = endereco.value.trim().length >= 8;
+      endereco.classList.toggle("valido", ok);
+      endereco.classList.toggle("invalido", endereco.value.length > 0 && !ok);
+      document.getElementById("erro-endereco").classList.toggle("visivel", endereco.value.length > 0 && !ok);
+      btnBuscar.disabled = !ok;
+    });
+
+    btnBuscar.addEventListener("click", () => {
+      const params = new URLSearchParams({
+        tipo: "nutricionista",
+        servico: servicoSelecionado.nome,
+        endereco: endereco.value.trim(),
+        servico_selecionado: servicoSelecionado.nome,
+        preco: servicoSelecionado.preco
+      });
+      document.body.classList.add("fade-out");
+      setTimeout(() => {
+        window.location.href = "../mapa/mapa.html?" + params.toString();
+      }, 350);
+    });
+  </script>
+</body>
+</html>
