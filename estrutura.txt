@@ -1,0 +1,245 @@
+.
+├── android
+│   ├── app
+│   │   └── src
+│   │       └── main
+│   │           ├── AndroidManifest.xml
+│   │           ├── assets
+│   │           │   └── public
+│   │           ├── java
+│   │           │   └── com
+│   │           │       └── zelar
+│   │           │           └── app
+│   │           │               └── MainActivity.java
+│   │           └── res
+│   ├── build.gradle
+│   ├── gradle.properties
+│   └── settings.gradle
+├── backend
+│   ├── ARQUITETURA_COMPLETA.txt
+│   ├── banco
+│   │   ├── conexao.js
+│   │   ├── migracoes
+│   │   ├── schema.sql
+│   │   └── seeds.sql
+│   ├── .env
+│   ├── gerar-estrutura.js
+│   ├── .gitignore
+│   ├── logs
+│   │   ├── acesso.log
+│   │   └── erros.log
+│   ├── middlewares
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── server.js
+│   ├── src
+│   │   ├── app.js
+│   │   ├── configuracao
+│   │   │   ├── ambiente.js
+│   │   │   ├── banco.js
+│   │   │   ├── database.js
+│   │   │   ├── email.js
+│   │   │   ├── jwt.js
+│   │   │   └── upload.js
+│   │   ├── controladores
+│   │   │   ├── AdminController.js
+│   │   │   ├── AgendaController.js
+│   │   │   ├── AtendimentoController.js
+│   │   │   ├── AuthController.js
+│   │   │   ├── AvaliacaoController.js
+│   │   │   ├── ClienteController.js
+│   │   │   ├── DocumentoController.js
+│   │   │   ├── FinanceiroController.js
+│   │   │   ├── NotificacaoController.js
+│   │   │   ├── PagamentoController.js
+│   │   │   ├── ProfissionalController.js
+│   │   │   ├── ReceitaController.js
+│   │   │   ├── RelatorioController.js
+│   │   │   ├── ServicoController.js
+│   │   │   ├── SolicitacaoController.js
+│   │   │   └── VideoController.js
+│   │   ├── middleware
+│   │   │   ├── admin.js
+│   │   │   ├── auth.js
+│   │   │   ├── erro.js
+│   │   │   ├── erros.js
+│   │   │   ├── logger.js
+│   │   │   ├── upload.js
+│   │   │   └── validacao.js
+│   │   ├── modelos
+│   │   │   ├── Agenda.js
+│   │   │   ├── Atendimento.js
+│   │   │   ├── Avaliacao.js
+│   │   │   ├── Cliente.js
+│   │   │   ├── Documento.js
+│   │   │   ├── Financeiro.js
+│   │   │   ├── Pagamento.js
+│   │   │   ├── Profissional.js
+│   │   │   ├── Receita.js
+│   │   │   ├── Servico.js
+│   │   │   ├── Solicitacao.js
+│   │   │   └── Usuario.js
+│   │   ├── rotas
+│   │   │   ├── admin.routes.js
+│   │   │   ├── agenda.js
+│   │   │   ├── agenda.routes.js
+│   │   │   ├── atendimentos.routes.js
+│   │   │   ├── auth.js
+│   │   │   ├── auth.routes.js
+│   │   │   ├── avaliacoes.routes.js
+│   │   │   ├── clientes.js
+│   │   │   ├── clientes.routes.js
+│   │   │   ├── documentos.routes.js
+│   │   │   ├── financeiro.routes.js
+│   │   │   ├── notificacoes.js
+│   │   │   ├── notificacoes.routes.js
+│   │   │   ├── pagamentos.js
+│   │   │   ├── pagamentos.routes.js
+│   │   │   ├── profissionais.js
+│   │   │   ├── profissionais.routes.js
+│   │   │   ├── receitas.routes.js
+│   │   │   ├── relatorios.routes.js
+│   │   │   ├── servicos.js
+│   │   │   ├── servicos.routes.js
+│   │   │   ├── solicitacoes.routes.js
+│   │   │   ├── video.js
+│   │   │   └── video.routes.js
+│   │   ├── servicos
+│   │   │   ├── AgendaService.js
+│   │   │   ├── AtendimentoService.js
+│   │   │   ├── authService.js
+│   │   │   ├── AuthService.js
+│   │   │   ├── AvaliacaoService.js
+│   │   │   ├── ClienteService.js
+│   │   │   ├── DocumentoService.js
+│   │   │   ├── emailService.js
+│   │   │   ├── EmailService.js
+│   │   │   ├── FinanceiroService.js
+│   │   │   ├── MapaService.js
+│   │   │   ├── notificacaoService.js
+│   │   │   ├── NotificacaoService.js
+│   │   │   ├── PagamentoService.js
+│   │   │   ├── ProfissionalService.js
+│   │   │   ├── ReceitaService.js
+│   │   │   ├── RelatorioService.js
+│   │   │   ├── UploadService.js
+│   │   │   └── VideoService.js
+│   │   ├── servidor.js
+│   │   ├── uploads
+│   │   │   ├── assinaturas
+│   │   │   ├── documentos
+│   │   │   ├── fotos
+│   │   │   ├── receitas
+│   │   │   ├── relatorios
+│   │   │   └── temporarios
+│   │   └── utilitarios
+│   │       ├── cnpj.js
+│   │       ├── cpf.js
+│   │       ├── datas.js
+│   │       ├── excel.js
+│   │       ├── helpers.js
+│   │       ├── logger.js
+│   │       ├── mascaras.js
+│   │       └── pdf.js
+│   └── uploads
+├── backend.sh
+├── capacitor.config.json
+├── documentos
+│   ├── api.md
+│   ├── arquitetura.md
+│   ├── banco.md
+│   ├── changelog.md
+│   └── roadmap.md
+├── .env.example
+├── estrutura.txt
+├── frontend
+│   ├── index.html
+│   ├── package.json
+│   ├── public
+│   │   ├── assets
+│   │   ├── icones
+│   │   ├── imagens
+│   │   └── mapa
+│   ├── servidor.js
+│   ├── src
+│   │   ├── App.vue
+│   │   ├── assets
+│   │   │   ├── css
+│   │   │   ├── icones
+│   │   │   ├── imagens
+│   │   │   └── js
+│   │   ├── components
+│   │   │   ├── common
+│   │   │   │   └── index.vue
+│   │   │   ├── index.vue
+│   │   │   ├── paciente
+│   │   │   │   └── index.vue
+│   │   │   └── profissional
+│   │   │       └── index.vue
+│   │   ├── composables
+│   │   ├── layouts
+│   │   ├── main.js
+│   │   ├── pages
+│   │   │   ├── admin
+│   │   │   │   └── Index.vue
+│   │   │   ├── agenda
+│   │   │   │   └── Index.vue
+│   │   │   ├── cadastro
+│   │   │   │   └── Index.vue
+│   │   │   ├── cadastro-profissional
+│   │   │   │   └── Index.vue
+│   │   │   ├── chat
+│   │   │   │   └── Index.vue
+│   │   │   ├── configuracoes
+│   │   │   │   └── Index.vue
+│   │   │   ├── explicacao
+│   │   │   │   └── Index.vue
+│   │   │   ├── home
+│   │   │   │   └── Index.vue
+│   │   │   ├── Index.vue
+│   │   │   ├── login
+│   │   │   │   └── Index.vue
+│   │   │   ├── mapa
+│   │   │   │   └── Index.vue
+│   │   │   ├── paciente
+│   │   │   │   └── Index.vue
+│   │   │   ├── pagamentos
+│   │   │   │   └── Index.vue
+│   │   │   ├── perfil
+│   │   │   │   └── Index.vue
+│   │   │   ├── profissional
+│   │   │   │   └── Index.vue
+│   │   │   └── selecionar-atendimento
+│   │   │       └── Index.vue
+│   │   ├── plugins
+│   │   │   └── index.js
+│   │   ├── router
+│   │   │   └── index.js
+│   │   ├── services
+│   │   │   └── api.js
+│   │   ├── stores
+│   │   └── utils
+│   │       └── constants.js
+│   └── vite.config.js
+├── .gitignore
+├── package.json
+├── README.md
+├── recursos
+│   ├── documentacao
+│   ├── icones
+│   ├── imagens
+│   ├── logos
+│   ├── mockups
+│   └── splash
+├── scripts
+│   ├── backup.sh
+│   ├── build.sh
+│   ├── deploy.sh
+│   └── dev.sh
+├── testes
+│   ├── backend
+│   ├── frontend
+│   └── integracao
+└── vite.config.js
+
+85 directories, 158 files

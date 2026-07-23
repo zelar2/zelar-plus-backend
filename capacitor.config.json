@@ -1,0 +1,12 @@
+{
+  "appId": "com.zelar.app",
+  "appName": "ZELAR+",
+  "webDir": "dist",
+  "backgroundColor": "#1e3c72",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

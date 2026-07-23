@@ -1,0 +1,25 @@
+/* ZELAR+ — Tela de login (estilos específicos) */
+
+.cartao {
+  margin-top: 8px;
+}
+
+#form-login .botao {
+  margin-top: 6px;
+}
+
+.divisor {
+  margin: 20px 0 12px;
+}
+
+.link-suave {
+  font-size: 13px;
+}
+
+.link-suave a {
+  text-decoration: none;
+}
+
+.link-suave a:hover {
+  text-decoration: underline;
+}

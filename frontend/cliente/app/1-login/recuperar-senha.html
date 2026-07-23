@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ZELAR+ - Recuperar senha</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="./login.css" />
+</head>
+<body>
+  <div class="app-container">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3l9-8z"/></svg>
+      </div>
+      <div class="logo-texto">ZELAR<span>+</span></div>
+    </div>
+    <p class="subtitulo">Recuperação de acesso</p>
+
+    <div class="cartao brilho" id="cartao-form">
+      <h1>Recuperar senha</h1>
+      <p class="descricao">Informe seu e-mail para receber o link de redefinição</p>
+
+      <form id="form-recuperar" novalidate>
+        <div class="grupo">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" class="campo" placeholder="seu@email.com" autocomplete="email" />
+          <span class="msg-erro" id="erro-email">Informe um e-mail válido.</span>
+        </div>
+
+        <button type="submit" class="botao" id="btn-recuperar" disabled>Enviar link</button>
+      </form>
+
+      <p class="link-suave">Lembrou a senha? <a href="./index.html">Entrar</a></p>
+    </div>
+
+    <div class="cartao brilho oculto" id="cartao-sucesso">
+      <div class="centralizar" style="font-size:52px">📩</div>
+      <h1 class="mt-16">Verifique seu e-mail</h1>
+      <p class="descricao" id="msg-sucesso">
+        Enviamos um link de redefinição para o seu e-mail. Ele é válido por 30 minutos.
+      </p>
+      <a class="botao" href="./index.html">Voltar ao login</a>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="overlay-loading" id="loading">
+    <div class="spinner"></div>
+    <p>Enviando...</p>
+  </div>
+
+  <script type="module" src="./script.js"></script>
+</body>
+</html>
