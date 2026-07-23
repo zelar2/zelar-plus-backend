@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>ZELAR+ - Como funciona</title>
-  <script type="module" crossorigin src="../assets/explicacao-D5QsqJad.js"></script>
-  <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="../assets/explicacao-_Suo6Aly.css">
-  <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="./explicacao.css" />
 </head>
 <body>
   <div class="app-container">
@@ -19,397 +17,34 @@
     </div>
     <p class="subtitulo">Como funciona</p>
 
-    <!-- Container de slides com transições suaves -->
-    <div class="slides-container" id="slides-container">
-      <div class="slides-track" id="slides-track">
-        <div class="slide" data-slide="0">
-          <div class="slide-ilustracao">
-            <div class="slide-icone">🏠</div>
-            <div class="slide-ondas">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <div class="slide-conteudo">
-            <span class="slide-numero">01</span>
-            <h2>Atendimento em casa</h2>
-            <p>Escolha o profissional de saúde que você precisa e receba o cuidado no conforto do seu lar, sem filas e sem espera.</p>
-            <div class="slide-tags">
-              <span class="tag">🏥 Sem hospital</span>
-              <span class="tag">⏱️ Sem fila</span>
-            </div>
-          </div>
-        </div>
-        <div class="slide" data-slide="1">
-          <div class="slide-ilustracao">
-            <div class="slide-icone">👩‍⚕️</div>
-            <div class="slide-ondas">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <div class="slide-conteudo">
-            <span class="slide-numero">02</span>
-            <h2>Profissionais verificados</h2>
-            <p>Todos os profissionais passam por verificação rigorosa de documentos e registro ativo no conselho de classe.</p>
-            <div class="slide-tags">
-              <span class="tag">✓ Documentos validados</span>
-              <span class="tag">🛡️ Segurança</span>
-            </div>
-          </div>
-        </div>
-        <div class="slide" data-slide="2">
-          <div class="slide-ilustracao">
-            <div class="slide-icone">📱</div>
-            <div class="slide-ondas">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <div class="slide-conteudo">
-            <span class="slide-numero">03</span>
-            <h2>Presencial ou por vídeo</h2>
-            <p>Agende visitas domiciliares ou consultas por vídeo. Pagamento seguro pelo app, com comprovante digital.</p>
-            <div class="slide-tags">
-              <span class="tag">🎥 Teleconsulta</span>
-              <span class="tag">💳 Pagamento seguro</span>
-            </div>
-          </div>
-        </div>
+    <div class="slides">
+      <div class="slide ativo" data-slide="0">
+        <div class="slide-icone">🏠</div>
+        <h2>Atendimento em casa</h2>
+        <p>Escolha o profissional de saúde que você precisa e receba o cuidado no conforto do seu lar.</p>
+      </div>
+      <div class="slide" data-slide="1">
+        <div class="slide-icone">👩‍⚕️</div>
+        <h2>Profissionais verificados</h2>
+        <p>Todos os profissionais passam por verificação de documentos e registro no conselho de classe.</p>
+      </div>
+      <div class="slide" data-slide="2">
+        <div class="slide-icone">📱</div>
+        <h2>Presencial ou por vídeo</h2>
+        <p>Agende visitas domiciliares ou consultas por vídeo, com pagamento seguro pelo app.</p>
       </div>
     </div>
 
-    <!-- Indicadores de progresso estilo stories -->
-    <div class="stories-progress" id="stories-progress">
-      <div class="story-bar ativo" data-bar="0"><div class="preenchido"></div></div>
-      <div class="story-bar" data-bar="1"><div class="preenchido"></div></div>
-      <div class="story-bar" data-bar="2"><div class="preenchido"></div></div>
+    <div class="progresso" id="progresso">
+      <div class="dot ativo"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
     </div>
 
-    <!-- Navegação -->
-    <div class="navegacao-slides">
-      <button class="nav-btn" id="btn-anterior" disabled>‹</button>
-      <button class="botao" id="btn-proximo">Próximo</button>
-    </div>
+    <button class="botao" id="btn-proximo">Próximo</button>
     <a class="link-suave" href="#" id="pular">Pular introdução</a>
   </div>
 
-  <style>
-    /* ============================================================
-       SLIDES SOFISTICADOS - Como Funciona
-       ============================================================ */
-
-    .slides-container {
-      width: 100%;
-      overflow: hidden;
-      position: relative;
-      margin: 20px 0;
-    }
-    .slides-track {
-      display: flex;
-      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .slide {
-      min-width: 100%;
-      padding: 0 8px;
-      box-sizing: border-box;
-      opacity: 0.3;
-      transform: scale(0.92);
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .slide.ativo {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    /* Ilustração com ondas animadas */
-    .slide-ilustracao {
-      position: relative;
-      width: 160px;
-      height: 160px;
-      margin: 0 auto 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .slide-icone {
-      font-size: 64px;
-      z-index: 2;
-      position: relative;
-      animation: float 3s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-    .slide-ondas {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      height: 100%;
-    }
-    .slide-ondas span {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 1px solid rgba(0,212,170,0.15);
-      animation: onda 2.5s ease-out infinite;
-    }
-    .slide-ondas span:nth-child(2) { animation-delay: 0.5s; }
-    .slide-ondas span:nth-child(3) { animation-delay: 1s; }
-    @keyframes onda {
-      0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.6; }
-      100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
-    }
-
-    /* Conteúdo do slide */
-    .slide-conteudo {
-      text-align: center;
-    }
-    .slide-numero {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--acento, #00d4aa);
-      letter-spacing: 2px;
-      margin-bottom: 8px;
-      background: rgba(0,212,170,0.1);
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-    .slide h2 {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--texto, #fff);
-      margin: 0 0 12px 0;
-      line-height: 1.3;
-    }
-    .slide p {
-      font-size: 14px;
-      line-height: 1.7;
-      color: var(--texto-suave, rgba(255,255,255,0.7));
-      margin: 0 0 20px 0;
-      max-width: 280px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .slide-tags {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .tag {
-      font-size: 12px;
-      padding: 6px 12px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: var(--texto-suave, rgba(255,255,255,0.7));
-    }
-
-    /* Stories progress bar */
-    .stories-progress {
-      display: flex;
-      gap: 6px;
-      margin: 20px 0;
-      padding: 0 8px;
-    }
-    .story-bar {
-      flex: 1;
-      height: 3px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 2px;
-      overflow: hidden;
-      position: relative;
-    }
-    .story-bar .preenchido {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--acento, #00d4aa), var(--sucesso, #2ee59d));
-      border-radius: 2px;
-      transition: width 0.1s linear;
-    }
-    .story-bar.feito .preenchido { width: 100%; }
-    .story-bar.ativo .preenchido { animation: preencher 5s linear forwards; }
-    @keyframes preencher { to { width: 100%; } }
-
-    /* Navegação */
-    .navegacao-slides {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: center;
-      margin-top: 8px;
-    }
-    .nav-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: var(--texto, #fff);
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      flex-shrink: 0;
-    }
-    .nav-btn:hover:not(:disabled) {
-      background: rgba(255,255,255,0.15);
-    }
-    .nav-btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-    #btn-proximo {
-      flex: 1;
-      max-width: 200px;
-    }
-
-    /* Animações de entrada */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    .anim-fade-up { animation: fadeInUp 0.6s ease; }
-    .anim-scale-in { animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  </style>
-
-  <script>
-    // ============================================================
-    // FALLBACK: Funções essenciais
-    // ============================================================
-    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
-      ir: function(url) {
-        document.body.classList.add('saindo');
-        setTimeout(() => { window.location.href = url; }, 300);
-      }
-    };
-
-    // ============================================================
-    // LÓGICA DOS SLIDES
-    // ============================================================
-    (function() {
-      const track = document.getElementById('slides-track');
-      const btnProximo = document.getElementById('btn-proximo');
-      const btnAnterior = document.getElementById('btn-anterior');
-      const pular = document.getElementById('pular');
-      const bars = document.querySelectorAll('.story-bar');
-      const slides = document.querySelectorAll('.slide');
-
-      if (!track || !btnProximo || slides.length === 0) return;
-
-      let atual = 0;
-      const total = slides.length;
-      let autoPlayTimer = null;
-
-      function atualizarSlide() {
-        // Move o track
-        track.style.transform = 'translateX(-' + (atual * 100) + '%)';
-
-        // Atualiza slides
-        slides.forEach((s, i) => {
-          s.classList.toggle('ativo', i === atual);
-        });
-
-        // Atualiza bars
-        bars.forEach((b, i) => {
-          b.classList.remove('ativo', 'feito');
-          if (i < atual) b.classList.add('feito');
-          if (i === atual) b.classList.add('ativo');
-        });
-
-        // Atualiza botões
-        if (btnAnterior) btnAnterior.disabled = atual === 0;
-
-        if (atual === total - 1) {
-          btnProximo.textContent = 'Começar';
-        } else {
-          btnProximo.textContent = 'Próximo';
-        }
-
-        // Reinicia autoplay
-        reiniciarAutoPlay();
-      }
-
-      function avancar() {
-        if (atual < total - 1) {
-          atual++;
-          atualizarSlide();
-        } else {
-          // Último slide: vai para o app
-          try { ZC.ir('../2-cliente/selecionar-atendimento.html'); }
-          catch(e) { window.location.href = '../2-cliente/selecionar-atendimento.html'; }
-        }
-      }
-
-      function voltar() {
-        if (atual > 0) {
-          atual--;
-          atualizarSlide();
-        }
-      }
-
-      function reiniciarAutoPlay() {
-        if (autoPlayTimer) clearTimeout(autoPlayTimer);
-        autoPlayTimer = setTimeout(() => {
-          if (atual < total - 1) {
-            atual++;
-            atualizarSlide();
-          }
-        }, 5000);
-      }
-
-      // Event listeners
-      btnProximo.addEventListener('click', avancar);
-      if (btnAnterior) btnAnterior.addEventListener('click', voltar);
-
-      if (pular) {
-        pular.addEventListener('click', (e) => {
-          e.preventDefault();
-          try { ZC.ir('../2-cliente/selecionar-atendimento.html'); }
-          catch(e) { window.location.href = '../2-cliente/selecionar-atendimento.html'; }
-        });
-      }
-
-      // Swipe para mobile
-      let startX = 0;
-      let isDragging = false;
-
-      track.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        isDragging = true;
-      }, { passive: true });
-
-      track.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
-        const endX = e.changedTouches[0].clientX;
-        const diff = startX - endX;
-        if (Math.abs(diff) > 50) {
-          if (diff > 0 && atual < total - 1) {
-            atual++;
-            atualizarSlide();
-          } else if (diff < 0 && atual > 0) {
-            atual--;
-            atualizarSlide();
-          }
-        }
-        isDragging = false;
-      }, { passive: true });
-
-      // Inicializa
-      atualizarSlide();
-    })();
-  </script>
+  <script type="module" src="./js/explicacao.js"></script>
 </body>
 </html>

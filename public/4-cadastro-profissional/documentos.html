@@ -4,321 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>ZELAR+ - Documentos</title>
-  <script type="module" crossorigin src="../assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
-  <script type="module" crossorigin src="../assets/cadastro-CzP_A_lC.js"></script>
-  <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
+  <link rel="stylesheet" href="../assets/css/global.css" />
   <style>
-    /* ============================================================
-       FLUXO DE DOCUMENTOS - Moderno e Limpo
-       ============================================================ */
-
-    /* Container do fluxo */
-    .fluxo-docs {
-      position: relative;
-    }
-
-    /* Step indicator minimalista */
-    .steps-minimal {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    .steps-minimal .step-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .steps-minimal .step-dot.feito {
-      background: var(--sucesso, #2ee59d);
-      box-shadow: 0 0 8px rgba(46,229,157,0.4);
-    }
-    .steps-minimal .step-dot.atual {
-      background: var(--acento, #00d4aa);
-      width: 24px;
-      border-radius: 4px;
-      box-shadow: 0 0 12px rgba(0,212,170,0.5);
-    }
-
-    /* Card de upload principal */
-    .upload-card {
-      border: 2px dashed rgba(255,255,255,0.15);
-      border-radius: 20px;
-      padding: 0;
+    .upload {
+      border: 2px dashed var(--vidro-borda);
+      border-radius: var(--raio-pq);
+      padding: 20px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      background: rgba(255,255,255,0.03);
-      position: relative;
-      overflow: hidden;
-      min-height: 320px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      transition: var(--transicao);
+      margin-bottom: 14px;
     }
-    .upload-card:hover {
-      border-color: var(--acento, #00d4aa);
-      background: rgba(0,212,170,0.04);
-      transform: translateY(-2px);
-    }
-    .upload-card.enviado {
-      border-style: solid;
-      border-color: var(--sucesso, #2ee59d);
-      background: rgba(46,229,157,0.06);
-    }
-    .upload-card input { display: none; }
-
-    /* Estado vazio */
-    .upload-card .estado-vazio {
-      padding: 40px 24px;
-      transition: opacity 0.3s ease;
-    }
-    .upload-card.enviado .estado-vazio {
-      display: none;
-    }
-    .upload-card .icone-grande {
-      font-size: 48px;
-      margin-bottom: 16px;
-      opacity: 0.8;
-    }
-    .upload-card .titulo-doc {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--texto, #fff);
-      margin-bottom: 8px;
-    }
-    .upload-card .desc-doc {
-      font-size: 13px;
-      color: var(--texto-suave, rgba(255,255,255,0.6));
-      line-height: 1.5;
-      max-width: 240px;
-    }
-    .upload-card .hint-tap {
-      font-size: 12px;
-      color: var(--acento, #00d4aa);
-      margin-top: 16px;
-      opacity: 0.7;
-    }
-
-    /* Estado com preview */
-    .upload-card .estado-preview {
-      display: none;
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-    .upload-card.enviado .estado-preview {
-      display: flex;
-      flex-direction: column;
-    }
-    .upload-card .preview-img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      border-radius: 16px 16px 0 0;
-    }
-    .upload-card .preview-info {
-      padding: 16px 20px;
-      text-align: left;
-      flex: 1;
-    }
-    .upload-card .preview-info .nome-arquivo {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--texto, #fff);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .upload-card .preview-info .nome-arquivo::before {
-      content: "✓";
-      color: var(--sucesso, #2ee59d);
-      font-weight: 700;
-    }
-    .upload-card .preview-info .tipo-doc {
-      font-size: 12px;
-      color: var(--texto-suave, rgba(255,255,255,0.5));
-      margin-top: 4px;
-    }
-
-    /* Botão remover dentro do preview */
-    .btn-remover-preview {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      z-index: 5;
-    }
-    .btn-remover-preview:hover {
-      background: rgba(255,50,50,0.8);
-      transform: scale(1.1);
-    }
-
-    /* Navegação entre documentos */
-    .navegacao-docs {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 16px;
-      gap: 12px;
-    }
-    .nav-seta {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: var(--texto, #fff);
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      flex-shrink: 0;
-    }
-    .nav-seta:hover:not(:disabled) {
-      background: rgba(255,255,255,0.15);
-    }
-    .nav-seta:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-    .nav-info {
-      text-align: center;
-      flex: 1;
-    }
-    .nav-info .doc-atual-nome {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--texto, #fff);
-    }
-    .nav-info .doc-atual-status {
-      font-size: 12px;
-      color: var(--texto-suave, rgba(255,255,255,0.5));
-      margin-top: 2px;
-    }
-    .nav-info .doc-atual-status.ok {
-      color: var(--sucesso, #2ee59d);
-    }
-
-    /* Lista resumida de documentos (mini cards) */
-    .resumo-docs {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      justify-content: center;
-    }
-    .mini-doc {
-      flex: 1;
-      max-width: 80px;
-      padding: 10px 6px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    .mini-doc:hover {
-      background: rgba(255,255,255,0.08);
-    }
-    .mini-doc.ativo {
-      border-color: var(--acento, #00d4aa);
-      background: rgba(0,212,170,0.08);
-    }
-    .mini-doc.feito {
-      border-color: var(--sucesso, #2ee59d);
-    }
-    .mini-doc.feito::after {
-      content: "✓";
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      width: 16px;
-      height: 16px;
-      background: var(--sucesso, #2ee59d);
-      border-radius: 50%;
-      font-size: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #000;
-      font-weight: 700;
-    }
-    .mini-doc .mini-icone {
-      font-size: 20px;
-      margin-bottom: 4px;
-    }
-    .mini-doc .mini-label {
-      font-size: 10px;
-      color: var(--texto-suave, rgba(255,255,255,0.6));
-      line-height: 1.2;
-    }
-
-    /* Animações */
-    @keyframes slideInRight {
-      from { opacity: 0; transform: translateX(30px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes slideInLeft {
-      from { opacity: 0; transform: translateX(-30px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse-soft {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,170,0.2); }
-      50% { box-shadow: 0 0 0 8px rgba(0,212,170,0); }
-    }
-    .anim-slide-right { animation: slideInRight 0.4s ease; }
-    .anim-slide-left { animation: slideInLeft 0.4s ease; }
-    .anim-fade-up { animation: fadeInUp 0.5s ease; }
-    .pulse-animate { animation: pulse-soft 2s infinite; }
-
-    /* Barra de progresso sutil */
-    .progresso-doc {
-      width: 100%;
-      height: 3px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 2px;
-      margin-top: 20px;
-      overflow: hidden;
-    }
-    .progresso-doc .preenchido {
-      height: 100%;
-      background: linear-gradient(90deg, var(--acento, #00d4aa), var(--sucesso, #2ee59d));
-      border-radius: 2px;
-      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Toast fallback */
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--vidro, rgba(30,60,114,0.9)); color: var(--texto, #fff); padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); opacity: 0; transition: all 0.3s ease; z-index: 9999; backdrop-filter: blur(10px); font-size: 14px; }
-    .toast.visivel { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* Botões de ação */
-    .acoes-finais {
-      margin-top: 24px;
-    }
+    .upload:hover { border-color: var(--acento); background: rgba(0,212,170,.06); }
+    .upload.enviado { border-style: solid; border-color: var(--sucesso); background: rgba(46,229,157,.08); }
+    .upload .icone { font-size: 30px; margin-bottom: 8px; }
+    .upload .titulo { font-size: 14px; font-weight: 700; }
+    .upload .detalhe { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+    .upload input { display: none; }
   </style>
 </head>
 <body>
@@ -339,42 +41,30 @@
 
     <div class="cartao brilho">
       <h1>Documentos</h1>
-      <p class="descricao">Envie os documentos necessários</p>
+      <p class="descricao">Envie fotos legíveis dos documentos</p>
 
-      <!-- Indicador de steps minimalista -->
-      <div class="steps-minimal" id="steps-indicator">
-        <div class="step-dot atual" data-step="0"></div>
-        <div class="step-dot" data-step="1"></div>
-        <div class="step-dot" data-step="2"></div>
-      </div>
+      <label class="upload" data-doc="identidade">
+        <input type="file" accept="image/*,.pdf" />
+        <div class="icone">🪪</div>
+        <div class="titulo">RG ou CNH</div>
+        <div class="detalhe">Documento de identidade com foto</div>
+      </label>
 
-      <!-- Card principal de upload -->
-      <div class="fluxo-docs" id="fluxo-docs">
-        <!-- Conteúdo injetado via JS -->
-      </div>
+      <label class="upload" data-doc="conselho">
+        <input type="file" accept="image/*,.pdf" />
+        <div class="icone">📜</div>
+        <div class="titulo">Carteira do conselho / certificado</div>
+        <div class="detalhe">Registro profissional da sua categoria</div>
+      </label>
 
-      <!-- Navegação -->
-      <div class="navegacao-docs">
-        <button class="nav-seta" id="nav-anterior" disabled>‹</button>
-        <div class="nav-info">
-          <div class="doc-atual-nome" id="doc-nome">RG ou CNH</div>
-          <div class="doc-atual-status" id="doc-status">Toque para enviar</div>
-        </div>
-        <button class="nav-seta" id="nav-proximo">›</button>
-      </div>
+      <label class="upload" data-doc="comprovante">
+        <input type="file" accept="image/*,.pdf" />
+        <div class="icone">🏠</div>
+        <div class="titulo">Comprovante de residência</div>
+        <div class="detalhe">Conta de luz, água ou telefone (últimos 90 dias)</div>
+      </label>
 
-      <!-- Mini cards de resumo -->
-      <div class="resumo-docs" id="resumo-docs">
-        <!-- Injetado via JS -->
-      </div>
-
-      <!-- Barra de progresso geral -->
-      <div class="progresso-doc">
-        <div class="preenchido" id="barra-geral" style="width: 0%"></div>
-      </div>
-
-      <!-- Botões finais -->
-      <div class="linha mt-8 acoes-finais">
+      <div class="linha mt-8">
         <button class="botao secundario" id="btn-voltar">Voltar</button>
         <button class="botao" id="btn-continuar" disabled>Continuar</button>
       </div>
@@ -383,297 +73,39 @@
 
   <div class="toast" id="toast"></div>
 
+  <script type="module" src="./js/cadastro.js"></script>
   <script>
-    // ============================================================
-    // FALLBACK: ZelarCadastro caso o JS externo não carregue
-    // ============================================================
-    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
-      ler: function() {
-        try { const d = localStorage.getItem('zelar_cadastro'); return d ? JSON.parse(d) : {}; }
-        catch(e) { return {}; }
-      },
-      salvar: function(obj) {
-        try { const a = this.ler(); localStorage.setItem('zelar_cadastro', JSON.stringify({...a, ...obj})); }
-        catch(e) {}
-      },
-      ir: function(url) {
-        document.body.classList.add('saindo');
-        setTimeout(() => { window.location.href = url; }, 300);
-      },
-      toast: function(msg, tipo) {
-        const t = document.getElementById('toast');
-        if (!t) return;
-        t.textContent = msg;
-        t.classList.add('visivel');
-        setTimeout(() => t.classList.remove('visivel'), 3000);
-      }
-    };
+    const uploads = document.querySelectorAll(".upload");
+    const btn = document.getElementById("btn-continuar");
+    const enviados = ZelarCadastro.ler().documentos || {};
 
-    // ============================================================
-    // CONFIGURAÇÃO DOS DOCUMENTOS
-    // ============================================================
-    const DOCS = [
-      {
-        id: 'identidade',
-        nome: 'RG ou CNH',
-        descricao: 'Documento de identidade com foto legível',
-        icone: '🪪',
-        obrigatorio: true
-      },
-      {
-        id: 'conselho',
-        nome: 'Carteira do Conselho',
-        descricao: 'Registro profissional da sua categoria',
-        icone: '📜',
-        obrigatorio: true
-      },
-      {
-        id: 'comprovante',
-        nome: 'Comprovante de Residência',
-        descricao: 'Conta de luz, água ou telefone (últimos 90 dias)',
-        icone: '🏠',
-        obrigatorio: false
-      }
-    ];
-
-    // ============================================================
-    // ESTADO
-    // ============================================================
-    let docAtual = 0;
-    let enviados = {};
-    let previews = {};
-
-    try {
-      const dados = ZC.ler();
-      enviados = (dados && dados.documentos) ? dados.documentos : {};
-      previews = (dados && dados.documentos_preview) ? dados.documentos_preview : {};
-    } catch(e) { enviados = {}; previews = {}; }
-
-    // ============================================================
-    // ELEMENTOS DOM
-    // ============================================================
-    const fluxoEl = document.getElementById('fluxo-docs');
-    const navAnt = document.getElementById('nav-anterior');
-    const navProx = document.getElementById('nav-proximo');
-    const docNome = document.getElementById('doc-nome');
-    const docStatus = document.getElementById('doc-status');
-    const resumoEl = document.getElementById('resumo-docs');
-    const barraGeral = document.getElementById('barra-geral');
-    const btnContinuar = document.getElementById('btn-continuar');
-    const btnVoltar = document.getElementById('btn-voltar');
-    const stepsIndicator = document.getElementById('steps-indicator');
-
-    // ============================================================
-    // FUNÇÕES
-    // ============================================================
-
-    function renderizarCard(doc, index) {
-      const temDoc = !!enviados[doc.id];
-      const previewSrc = previews[doc.id] || '';
-
-      return `
-        <label class="upload-card ${temDoc ? 'enviado' : 'pulse-animate'} anim-fade-up" data-index="${index}">
-          <input type="file" accept="image/*,.pdf" capture="environment" data-doc="${doc.id}" />
-
-          <!-- Estado vazio -->
-          <div class="estado-vazio">
-            <div class="icone-grande">${doc.icone}</div>
-            <div class="titulo-doc">${doc.nome}</div>
-            <div class="desc-doc">${doc.descricao}</div>
-            <div class="hint-tap">📷 Toque para tirar foto ou escolher arquivo</div>
-          </div>
-
-          <!-- Estado com preview -->
-          <div class="estado-preview">
-            ${temDoc && previewSrc ? `<img class="preview-img" src="${previewSrc}" alt="${doc.nome}" />` : ''}
-            ${temDoc && !previewSrc ? `<div class="preview-img" style="display:flex;align-items:center;justify-content:center;background:rgba(0,212,170,0.1);"><span style="font-size:48px">📄</span></div>` : ''}
-            <button type="button" class="btn-remover-preview" data-remove="${doc.id}">×</button>
-            <div class="preview-info">
-              <div class="nome-arquivo">${enviados[doc.id] || ''}</div>
-              <div class="tipo-doc">${doc.nome} ${doc.obrigatorio ? '• Obrigatório' : '• Opcional'}</div>
-            </div>
-          </div>
-        </label>
-      `;
-    }
-
-    function renderizarResumo() {
-      if (!resumoEl) return;
-      resumoEl.innerHTML = DOCS.map((doc, i) => {
-        const feito = !!enviados[doc.id];
-        const ativo = i === docAtual;
-        return `
-          <div class="mini-doc ${feito ? 'feito' : ''} ${ativo ? 'ativo' : ''}" data-index="${i}">
-            <div class="mini-icone">${doc.icone}</div>
-            <div class="mini-label">${doc.nome.split(' ')[0]}</div>
-          </div>
-        `;
-      }).join('');
-
-      // Click nos mini docs
-      resumoEl.querySelectorAll('.mini-doc').forEach(mini => {
-        mini.addEventListener('click', () => {
-          const idx = parseInt(mini.dataset.index);
-          if (idx !== docAtual) {
-            docAtual = idx;
-            atualizarTela();
-          }
-        });
-      });
-    }
-
-    function atualizarSteps() {
-      if (!stepsIndicator) return;
-      const dots = stepsIndicator.querySelectorAll('.step-dot');
-      dots.forEach((dot, i) => {
-        dot.className = 'step-dot';
-        if (i < docAtual) dot.classList.add('feito');
-        if (i === docAtual) dot.classList.add('atual');
-        if (enviados[DOCS[i].id] && i !== docAtual) dot.classList.add('feito');
-      });
-    }
-
-    function atualizarBarraGeral() {
-      if (!barraGeral) return;
-      const obrigatorios = DOCS.filter(d => d.obrigatorio);
-      const obrigatoriosEnviados = obrigatorios.filter(d => enviados[d.id]).length;
-      const pct = (obrigatoriosEnviados / obrigatorios.length) * 100;
-      barraGeral.style.width = pct + '%';
-    }
-
-    function atualizarNavegacao() {
-      if (navAnt) navAnt.disabled = docAtual === 0;
-      if (navProx) navProx.disabled = docAtual === DOCS.length - 1;
-
-      const doc = DOCS[docAtual];
-      const temDoc = !!enviados[doc.id];
-      if (docNome) docNome.textContent = doc.nome;
-      if (docStatus) {
-        docStatus.textContent = temDoc ? '✓ Documento enviado' : (doc.obrigatorio ? 'Toque para enviar • Obrigatório' : 'Toque para enviar • Opcional');
-        docStatus.className = 'doc-atual-status' + (temDoc ? ' ok' : '');
-      }
-    }
-
-    function atualizarBotaoContinuar() {
-      if (!btnContinuar) return;
-      const obrigatoriosOk = DOCS.filter(d => d.obrigatorio).every(d => enviados[d.id]);
-      btnContinuar.disabled = !obrigatoriosOk;
-      btnContinuar.style.opacity = obrigatoriosOk ? '1' : '0.5';
-      btnContinuar.style.cursor = obrigatoriosOk ? 'pointer' : 'not-allowed';
-    }
-
-    function atualizarTela() {
-      const doc = DOCS[docAtual];
-      if (fluxoEl) fluxoEl.innerHTML = renderizarCard(doc, docAtual);
-
-      // Evento de upload
-      const input = fluxoEl ? fluxoEl.querySelector('input[type="file"]') : null;
-      if (input) {
-        input.addEventListener('change', (e) => handleUpload(e, doc));
-      }
-
-      // Evento de remover
-      const btnRemover = fluxoEl ? fluxoEl.querySelector('.btn-remover-preview') : null;
-      if (btnRemover) {
-        btnRemover.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleRemover(doc.id);
-        });
-      }
-
-      atualizarNavegacao();
-      atualizarSteps();
-      renderizarResumo();
-      atualizarBarraGeral();
-      atualizarBotaoContinuar();
-    }
-
-    function handleUpload(e, doc) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      // Valida tamanho (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        ZC.toast('Arquivo muito grande! Máx: 10MB');
-        e.target.value = '';
-        return;
-      }
-
-      // Preview
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          previews[doc.id] = evt.target.result;
-          enviados[doc.id] = file.name;
-          salvarEstado();
-          ZC.toast('Documento enviado! ✓');
-          atualizarTela();
-        };
-        reader.readAsDataURL(file);
-      } else {
-        previews[doc.id] = '';
-        enviados[doc.id] = file.name;
-        salvarEstado();
-        ZC.toast('Documento enviado! ✓');
-        atualizarTela();
-      }
-    }
-
-    function handleRemover(docId) {
-      delete enviados[docId];
-      delete previews[docId];
-      salvarEstado();
-      ZC.toast('Documento removido');
-      atualizarTela();
-    }
-
-    function salvarEstado() {
-      try {
-        ZC.salvar({ documentos: enviados, documentos_preview: previews });
-      } catch(e) {}
-    }
-
-    // ============================================================
-    // EVENT LISTENERS
-    // ============================================================
-    if (navAnt) {
-      navAnt.addEventListener('click', () => {
-        if (docAtual > 0) {
-          docAtual--;
-          atualizarTela();
+    function atualizar() {
+      uploads.forEach((u) => {
+        const doc = u.dataset.doc;
+        u.classList.toggle("enviado", !!enviados[doc]);
+        if (enviados[doc]) {
+          u.querySelector(".detalhe").textContent = "✓ " + enviados[doc];
         }
       });
+      btn.disabled = !(enviados.identidade && enviados.conselho);
     }
 
-    if (navProx) {
-      navProx.addEventListener('click', () => {
-        if (docAtual < DOCS.length - 1) {
-          docAtual++;
-          atualizarTela();
+    uploads.forEach((u) => {
+      const input = u.querySelector("input");
+      input.addEventListener("change", () => {
+        if (input.files && input.files.length > 0) {
+          enviados[u.dataset.doc] = input.files[0].name;
+          ZelarCadastro.salvar({ documentos: enviados });
+          ZelarCadastro.toast("Documento anexado!", "sucesso");
+          atualizar();
         }
       });
-    }
+    });
 
-    if (btnContinuar) {
-      btnContinuar.addEventListener('click', () => {
-        if (btnContinuar.disabled) return;
-        try { ZC.ir('./foto.html'); }
-        catch(e) { window.location.href = './foto.html'; }
-      });
-    }
+    btn.addEventListener("click", () => ZelarCadastro.ir("./foto.html"));
+    document.getElementById("btn-voltar").addEventListener("click", () => ZelarCadastro.ir("./dados.html"));
 
-    if (btnVoltar) {
-      btnVoltar.addEventListener('click', () => {
-        try { ZC.ir('./dados.html'); }
-        catch(e) { window.location.href = './dados.html'; }
-      });
-    }
-
-    // ============================================================
-    // INICIALIZAÇÃO
-    // ============================================================
-    atualizarTela();
+    atualizar();
   </script>
 </body>
 </html>

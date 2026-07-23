@@ -3,149 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>ZELAR+ - Profissionais em Avaré</title>
+  <title>ZELAR+ - Profissionais próximos</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
   <style>
-    /* ============================================================
-       MAPA AVARÉ - Profissionais reais da região
-       ============================================================ */
-
     #mapa {
       width: 100%;
-      height: 260px;
-      border-radius: var(--raio-pq, 16px);
-      border: 1px solid var(--vidro-borda, rgba(255,255,255,0.1));
+      height: 280px;
+      border-radius: var(--raio-pq);
+      border: 1px solid var(--vidro-borda);
       margin-bottom: 16px;
       background: #16305c;
     }
-
     #mapa-fallback {
       display: none;
       width: 100%;
       height: 120px;
-      border-radius: var(--raio-pq, 16px);
-      border: 1px dashed var(--vidro-borda, rgba(255,255,255,0.1));
+      border-radius: var(--raio-pq);
+      border: 1px solid var(--vidro-borda);
       margin-bottom: 16px;
       align-items: center;
       justify-content: center;
-      color: var(--texto-suave, rgba(255,255,255,0.6));
+      color: var(--texto-suave);
       font-size: 13px;
       text-align: center;
-      padding: 16px;
-      background: rgba(255,255,255,0.03);
-      flex-direction: column;
-      gap: 8px;
+      padding: 12px;
     }
-
     .resumo-chamada {
       font-size: 13px;
-      color: var(--texto-suave, rgba(255,255,255,0.6));
+      color: var(--texto-suave);
       margin-bottom: 14px;
       text-align: center;
-      padding: 10px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.06);
     }
-    .resumo-chamada strong { color: var(--acento, #00d4aa); }
-    .resumo-chamada .local { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
-
-    .distancia { font-size: 11px; color: var(--texto-suave, rgba(255,255,255,0.5)); }
-
-    /* Card de profissional */
-    .cartao-opcao {
-      position: relative;
-      transition: all 0.3s ease;
-    }
-    .cartao-opcao.selecionado {
-      border-color: var(--acento, #00d4aa);
-      background: rgba(0,212,170,0.08);
-    }
-    .cartao-opcao.desabilitado {
-      opacity: 0.4;
-      pointer-events: none;
-    }
-    .cartao-opcao .status-online {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--sucesso, #2ee59d);
-      border: 2px solid var(--vidro, rgba(30,60,114,0.9));
-      box-shadow: 0 0 6px rgba(46,229,157,0.5);
-    }
-    .cartao-opcao .status-offline {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #888;
-      border: 2px solid var(--vidro, rgba(30,60,114,0.9));
-    }
-    .cartao-opcao .badge-verificado {
-      font-size: 10px;
-      color: var(--sucesso, #2ee59d);
-      background: rgba(46,229,157,0.1);
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-left: 6px;
-    }
-
-    /* Sem profissionais */
-    .sem-profissionais {
-      text-align: center;
-      padding: 30px 20px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 16px;
-      border: 1px dashed rgba(255,255,255,0.1);
-      margin-bottom: 16px;
-    }
-    .sem-profissionais .icone { font-size: 48px; margin-bottom: 12px; }
-    .sem-profissionais h3 { font-size: 16px; color: var(--texto, #fff); margin-bottom: 8px; }
-    .sem-profissionais p { font-size: 13px; color: var(--texto-suave); line-height: 1.6; }
-
-    /* Botão teleconsulta */
-    .btn-teleconsulta {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(0,212,170,0.15), rgba(0,212,170,0.05));
-      border: 1px solid var(--acento, #00d4aa);
-      color: var(--acento, #00d4aa);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 16px;
-      transition: all 0.3s ease;
-    }
-    .btn-teleconsulta:hover {
-      background: linear-gradient(135deg, rgba(0,212,170,0.25), rgba(0,212,170,0.1));
-      transform: translateY(-1px);
-    }
-
-    /* Toast fallback */
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--vidro, rgba(30,60,114,0.9)); color: var(--texto, #fff); padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); opacity: 0; transition: all 0.3s ease; z-index: 9999; backdrop-filter: blur(10px); font-size: 14px; }
-    .toast.visivel { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* Modal */
-    .modal-fundo { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 9998; padding: 20px; }
-    .modal-fundo.visivel { display: flex; }
-    .modal { background: var(--vidro, rgba(30,60,114,0.95)); border: 1px solid var(--vidro-borda, rgba(255,255,255,0.1)); border-radius: var(--raio-pq, 16px); padding: 24px; width: 100%; max-width: 400px; text-align: center; }
-    .modal h2 { color: var(--texto, #fff); font-size: 18px; margin-bottom: 8px; }
-    .modal p { color: var(--texto-suave, rgba(255,255,255,0.7)); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-
-    /* Animações */
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .anim-fade-up { animation: fadeInUp 0.5s ease; }
+    .resumo-chamada strong { color: var(--acento); }
+    .distancia { font-size: 11px; color: var(--texto-suave); }
   </style>
 </head>
 <body>
@@ -156,7 +47,7 @@
       </div>
       <div class="logo-texto">ZELAR<span>+</span></div>
     </div>
-    <p class="subtitulo">Profissionais em Avaré</p>
+    <p class="subtitulo">Profissionais próximos</p>
 
     <div class="progresso">
       <div class="dot feito"></div>
@@ -164,23 +55,12 @@
       <div class="dot ativo"></div>
     </div>
 
-    <!-- Mapa de Avaré -->
     <div id="mapa"></div>
-    <div id="mapa-fallback">
-      <div>📍</div>
-      <div>Mapa indisponível sem conexão<br>Selecione o profissional na lista abaixo</div>
-    </div>
+    <div id="mapa-fallback">📍 Mapa indisponível sem conexão — selecione o profissional na lista abaixo.</div>
 
-    <!-- Resumo do atendimento -->
     <p class="resumo-chamada" id="resumo"></p>
 
-    <!-- Lista de profissionais -->
     <div class="lista-opcoes" id="lista-profissionais"></div>
-
-    <!-- Botão teleconsulta (aparece se não houver presencial) -->
-    <button class="btn-teleconsulta" id="btn-teleconsulta" style="display:none">
-      🎥 Buscar profissional online (Teleconsulta)
-    </button>
 
     <div class="linha">
       <button class="botao secundario" id="btn-voltar">Voltar</button>
@@ -190,353 +70,129 @@
 
   <div class="toast" id="toast"></div>
 
-  <!-- Modal de sucesso -->
   <div class="modal-fundo" id="modal-sucesso">
-    <div class="modal anim-fade-up">
-      <div style="font-size:56px">✅</div>
-      <h2 class="mt-8">Atendimento solicitado!</h2>
-      <p id="detalhe-sucesso"></p>
+    <div class="modal">
+      <div class="centralizar" style="font-size:56px">✅</div>
+      <h2 class="centralizar mt-8">Atendimento solicitado!</h2>
+      <p class="descricao" id="detalhe-sucesso"></p>
       <button class="botao" id="btn-concluir">Concluir</button>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // ============================================================
-    // FALLBACK: Funções essenciais
-    // ============================================================
-    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
-      salvar: function(obj) {
-        try { const a = this.ler(); localStorage.setItem('zelar_cadastro', JSON.stringify({...a, ...obj})); }
-        catch(e) {}
-      },
-      ler: function() {
-        try { const d = localStorage.getItem('zelar_cadastro'); return d ? JSON.parse(d) : {}; }
-        catch(e) { return {}; }
-      },
-      ir: function(url) {
-        document.body.classList.add('saindo');
-        setTimeout(() => { window.location.href = url; }, 300);
-      },
-      toast: function(msg, tipo) {
-        const t = document.getElementById('toast');
-        if (!t) return;
-        t.textContent = msg;
-        t.classList.add('visivel');
-        setTimeout(() => t.classList.remove('visivel'), 3000);
-      }
-    };
+    const params = new URLSearchParams(window.location.search);
+    const tipo = params.get("tipo") || "atendimento";
+    const servico = params.get("servico_selecionado") || params.get("servico") || "Atendimento";
+    const endereco = params.get("endereco") || "Endereço informado";
+    const preco = parseFloat(params.get("preco") || "0");
 
-    // ============================================================
-    // CONFIGURAÇÃO - Avaré-SP
-    // ============================================================
-    const AVARE_COORDS = [-23.09889, -48.92583]; // Coordenadas reais de Avaré
-    const AVARE_ZOOM = 14;
+    const toast = document.getElementById("toast");
+    function mostrarToast(msg, tipo2 = "") {
+      toast.textContent = msg;
+      toast.className = "toast visivel" + (tipo2 ? " " + tipo2 : "");
+      clearTimeout(mostrarToast._t);
+      mostrarToast._t = setTimeout(() => (toast.className = "toast"), 3000);
+    }
 
-    // Profissionais reais cadastrados em Avaré e região
-    // Se não houver profissionais disponíveis, mostra opção de teleconsulta
-    const PROFISSIONAIS_AVARE = [
-      {
-        id: 1,
-        nome: "Dra. Ana Paula Mendes",
-        avatar: "👩‍⚕️",
-        categoria: "Médico(a)",
-        conselho: "CRM-SP 152.847",
-        nota: 4.9,
-        avaliacoes: 47,
-        dist: "0,8 km",
-        online: true,
-        coords: [-23.095, -48.928],
-        bairro: "Centro",
-        verificado: true,
-        disponivel: true
-      },
-      {
-        id: 2,
-        nome: "Enf. Roberto Silva",
-        avatar: "👨‍⚕️",
-        categoria: "Enfermeiro(a)",
-        conselho: "COREN-SP 456.321",
-        nota: 4.8,
-        avaliacoes: 32,
-        dist: "1,2 km",
-        online: true,
-        coords: [-23.102, -48.92],
-        bairro: "Jardim Europa",
-        verificado: true,
-        disponivel: true
-      },
-      {
-        id: 3,
-        nome: "Dra. Carla Souza",
-        avatar: "👩‍⚕️",
-        categoria: "Médico(a)",
-        conselho: "CRM-SP 189.234",
-        nota: 4.7,
-        avaliacoes: 28,
-        dist: "1,5 km",
-        online: false,
-        coords: [-23.105, -48.93],
-        bairro: "Jardim das Orquídeas",
-        verificado: true,
-        disponivel: false
-      },
-      {
-        id: 4,
-        nome: "Fisio. Lucas Oliveira",
-        avatar: "👨‍⚕️",
-        categoria: "Fisioterapeuta",
-        conselho: "CREFITO-3 78.456",
-        nota: 4.9,
-        avaliacoes: 56,
-        dist: "2,1 km",
-        online: true,
-        coords: [-23.09, -48.915],
-        bairro: "Parque São Jorge",
-        verificado: true,
-        disponivel: true
-      },
-      {
-        id: 5,
-        nome: "Psic. Mariana Costa",
-        avatar: "👩‍⚕️",
-        categoria: "Psicólogo(a)",
-        conselho: "CRP-06 12.345",
-        nota: 4.8,
-        avaliacoes: 41,
-        dist: "2,3 km",
-        online: true,
-        coords: [-23.11, -48.935],
-        bairro: "Jardim Paineiras",
-        verificado: true,
-        disponivel: true
-      }
+    document.getElementById("resumo").innerHTML =
+      `<strong>${servico}</strong><br/>📍 ${endereco}`;
+
+    // Profissionais simulados próximos
+    const PROFISSIONAIS = [
+      { nome: "Maria Silva", avatar: "👩‍⚕️", nota: 4.9, avaliacoes: 112, dist: "1,2 km", online: true },
+      { nome: "João Pereira", avatar: "👨‍⚕️", nota: 4.8, avaliacoes: 87, dist: "2,0 km", online: true },
+      { nome: "Carla Souza", avatar: "👩‍⚕️", nota: 4.7, avaliacoes: 64, dist: "2,8 km", online: true },
+      { nome: "Pedro Almeida", avatar: "👨‍⚕️", nota: 4.9, avaliacoes: 140, dist: "3,5 km", online: false }
     ];
 
-    // ============================================================
-    // LÓGICA PRINCIPAL
-    // ============================================================
-    (function() {
-      const params = new URLSearchParams(window.location.search);
-      const tipo = params.get("tipo") || "atendimento";
-      const servico = params.get("servico_selecionado") || params.get("servico") || "Atendimento";
-      const endereco = params.get("endereco") || "Avaré, SP";
-      const preco = parseFloat(params.get("preco") || "0");
-      const modo = params.get("modo") || "presencial";
+    let selecionado = null;
+    const lista = document.getElementById("lista-profissionais");
 
-      const resumoEl = document.getElementById("resumo");
-      const listaEl = document.getElementById("lista-profissionais");
-      const btnConfirmar = document.getElementById("btn-confirmar");
-      const btnVoltar = document.getElementById("btn-voltar");
-      const btnTeleconsulta = document.getElementById("btn-teleconsulta");
-      const modalSucesso = document.getElementById("modal-sucesso");
-      const detalheSucesso = document.getElementById("detalhe-sucesso");
-      const btnConcluir = document.getElementById("btn-concluir");
-
-      // Filtra profissionais disponíveis (online + disponível)
-      const disponiveis = PROFISSIONAIS_AVARE.filter(p => p.online && p.disponivel);
-      const indisponiveis = PROFISSIONAIS_AVARE.filter(p => !p.online || !p.disponivel);
-
-      // Mostra resumo
-      if (resumoEl) {
-        resumoEl.innerHTML = `<strong>${servico}</strong><br><span class="local">📍 ${endereco} · Avaré, SP</span>`;
+    PROFISSIONAIS.forEach((p, i) => {
+      const estrelas = "★".repeat(Math.round(p.nota)) + "☆".repeat(5 - Math.round(p.nota));
+      const el = document.createElement("div");
+      el.className = "cartao-opcao" + (p.online ? "" : " desabilitado");
+      el.innerHTML = `
+        <div class="icone">${p.avatar}</div>
+        <div class="info">
+          <div class="titulo">${p.nome}</div>
+          <div class="detalhe"><span style="color:#ffc94d">${estrelas}</span> ${p.nota.toFixed(1)} (${p.avaliacoes})</div>
+          <div class="distancia">📍 ${p.dist} de distância ${p.online ? "" : "· offline"}</div>
+        </div>
+        <div class="preco">${preco > 0 ? "R$ " + preco.toFixed(2).replace(".", ",") : ""}</div>`;
+      if (p.online) {
+        el.addEventListener("click", () => {
+          document.querySelectorAll("#lista-profissionais .cartao-opcao").forEach((c) => c.classList.remove("selecionado"));
+          el.classList.add("selecionado");
+          selecionado = p;
+          document.getElementById("btn-confirmar").disabled = false;
+        });
       }
+      lista.appendChild(el);
+    });
 
-      // Renderiza lista de profissionais
-      function renderizarProfissionais() {
-        if (!listaEl) return;
-        listaEl.innerHTML = '';
+    // Mapa com Leaflet (centro aproximado — geocodificação simples via Nominatim)
+    let mapa = null;
+    function montarMapa(lat, lon) {
+      if (typeof L === "undefined") {
+        document.getElementById("mapa").style.display = "none";
+        document.getElementById("mapa-fallback").style.display = "flex";
+        return;
+      }
+      try {
+        mapa = L.map("mapa", { zoomControl: false, attributionControl: false }).setView([lat, lon], 14);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(mapa);
+        L.marker([lat, lon]).addTo(mapa).bindPopup("📍 Seu endereço");
+        PROFISSIONAIS.forEach((p, i) => {
+          const dLat = lat + (i - 1.5) * 0.008;
+          const dLon = lon + ((i % 2) - 0.5) * 0.012;
+          L.marker([dLat, dLon]).addTo(mapa).bindPopup(`${p.avatar} ${p.nome}`);
+        });
+      } catch (e) {
+        document.getElementById("mapa").style.display = "none";
+        document.getElementById("mapa-fallback").style.display = "flex";
+      }
+    }
 
-        if (disponiveis.length === 0) {
-          // Sem profissionais presenciais disponíveis
-          listaEl.innerHTML = `
-            <div class="sem-profissionais anim-fade-up">
-              <div class="icone">🔍</div>
-              <h3>Nenhum profissional disponível no momento</h3>
-              <p>Não há profissionais de ${servico} disponíveis para atendimento presencial em Avaré agora.</p>
-            </div>
-          `;
-          if (btnTeleconsulta) btnTeleconsulta.style.display = 'flex';
-          return;
+    async function localizar() {
+      // Centro padrão (São Paulo) caso a geocodificação falhe
+      let lat = -23.5505, lon = -46.6333;
+      try {
+        const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=" + encodeURIComponent(endereco);
+        const response = await fetch(url, { headers: { "Accept-Language": "pt-BR" } });
+        const dados = await response.json();
+        if (dados && dados.length > 0) {
+          lat = parseFloat(dados[0].lat);
+          lon = parseFloat(dados[0].lon);
         }
+      } catch (e) { /* mantém o centro padrão */ }
+      montarMapa(lat, lon);
+    }
+    localizar();
 
-        // Mostra profissionais disponíveis
-        disponiveis.forEach((p, i) => {
-          const estrelas = "★".repeat(Math.round(p.nota)) + "☆".repeat(5 - Math.round(p.nota));
-          const el = document.createElement("div");
-          el.className = "cartao-opcao anim-fade-up";
-          el.style.animationDelay = (i * 0.1) + 's';
-          el.innerHTML = `
-            <div class="status-online"></div>
-            <div class="icone">${p.avatar}</div>
-            <div class="info">
-              <div class="titulo">${p.nome}
-                ${p.verificado ? '<span class="badge-verificado">✓ Verificado</span>' : ''}
-              </div>
-              <div class="detalhe">${p.categoria} · ${p.conselho}</div>
-              <div class="detalhe">
-                <span style="color:#ffc94d">${estrelas}</span>
-                <span style="color:var(--texto-suave)">${p.nota.toFixed(1)} (${p.avaliacoes} avaliações)</span>
-              </div>
-              <div class="distancia">📍 ${p.dist} · ${p.bairro}</div>
-            </div>
-            <div class="preco">${preco > 0 ? "R$ " + preco.toFixed(2).replace(".", ",") : ""}</div>
-          `;
-          el.addEventListener("click", () => selecionarProfissional(p, el));
-          listaEl.appendChild(el);
-        });
+    document.getElementById("btn-voltar").addEventListener("click", () => {
+      document.body.classList.add("fade-out");
+      setTimeout(() => window.history.back(), 300);
+    });
 
-        // Mostra profissionais indisponíveis (offline) no final
-        indisponiveis.forEach((p, i) => {
-          const estrelas = "★".repeat(Math.round(p.nota)) + "☆".repeat(5 - Math.round(p.nota));
-          const el = document.createElement("div");
-          el.className = "cartao-opcao desabilitado";
-          el.innerHTML = `
-            <div class="status-offline"></div>
-            <div class="icone">${p.avatar}</div>
-            <div class="info">
-              <div class="titulo">${p.nome}</div>
-              <div class="detalhe">${p.categoria} · ${p.conselho}</div>
-              <div class="detalhe">
-                <span style="color:#ffc94d">${estrelas}</span>
-                <span style="color:var(--texto-suave)">${p.nota.toFixed(1)}</span>
-              </div>
-              <div class="distancia">📍 ${p.dist} · Offline</div>
-            </div>
-          `;
-          listaEl.appendChild(el);
-        });
-      }
+    document.getElementById("btn-confirmar").addEventListener("click", () => {
+      if (!selecionado) return;
+      localStorage.setItem("zelar_atendimento", JSON.stringify({
+        tipo, servico, endereco, preco,
+        profissional: selecionado.nome,
+        status: "SOLICITADO",
+        data: new Date().toISOString()
+      }));
+      document.getElementById("detalhe-sucesso").innerHTML =
+        `<strong>${selecionado.nome}</strong> foi acionad${selecionado.avatar === "👩‍⚕️" ? "a" : "o"} para<br/><strong>${servico}</strong><br/>📍 ${endereco}`;
+      document.getElementById("modal-sucesso").classList.add("visivel");
+    });
 
-      let selecionado = null;
-
-      function selecionarProfissional(prof, el) {
-        document.querySelectorAll("#lista-profissionais .cartao-opcao").forEach((c) => c.classList.remove("selecionado"));
-        el.classList.add("selecionado");
-        selecionado = prof;
-        if (btnConfirmar) {
-          btnConfirmar.disabled = false;
-          btnConfirmar.style.opacity = '1';
-          btnConfirmar.style.cursor = 'pointer';
-        }
-      }
-
-      // Mapa com Leaflet centrado em Avaré
-      function montarMapa() {
-        if (typeof L === "undefined") {
-          document.getElementById("mapa").style.display = "none";
-          document.getElementById("mapa-fallback").style.display = "flex";
-          return;
-        }
-        try {
-          const mapa = L.map("mapa", { zoomControl: false, attributionControl: false }).setView(AVARE_COORDS, AVARE_ZOOM);
-
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(mapa);
-
-          // Marcador do endereço do paciente
-          const pacienteIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div style="background:#00d4aa;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>`,
-            iconSize: [14, 14],
-            iconAnchor: [7, 7]
-          });
-          L.marker(AVARE_COORDS, { icon: pacienteIcon }).addTo(mapa).bindPopup("📍 Você está aqui<br><small>Avaré, SP</small>");
-
-          // Marcadores dos profissionais
-          disponiveis.forEach((p) => {
-            const profIcon = L.divIcon({
-              className: 'custom-div-icon',
-              html: `<div style="background:#2ee59d;width:12px;height:12px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
-              iconSize: [12, 12],
-              iconAnchor: [6, 6]
-            });
-            L.marker(p.coords, { icon: profIcon }).addTo(mapa)
-              .bindPopup(`<b>${p.avatar} ${p.nome}</b><br><small>${p.categoria} · ${p.dist}</small>`);
-          });
-
-          // Marcadores dos indisponíveis (cinza)
-          indisponiveis.forEach((p) => {
-            const offIcon = L.divIcon({
-              className: 'custom-div-icon',
-              html: `<div style="background:#888;width:10px;height:10px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
-              iconSize: [10, 10],
-              iconAnchor: [5, 5]
-            });
-            L.marker(p.coords, { icon: offIcon }).addTo(mapa)
-              .bindPopup(`<b>${p.avatar} ${p.nome}</b><br><small>Offline</small>`);
-          });
-
-        } catch (e) {
-          document.getElementById("mapa").style.display = "none";
-          document.getElementById("mapa-fallback").style.display = "flex";
-        }
-      }
-
-      // Botão voltar
-      if (btnVoltar) {
-        btnVoltar.addEventListener("click", () => {
-          document.body.classList.add("fade-out");
-          setTimeout(() => window.history.back(), 300);
-        });
-      }
-
-      // Botão confirmar
-      if (btnConfirmar) {
-        btnConfirmar.addEventListener("click", () => {
-          if (!selecionado) return;
-
-          try {
-            localStorage.setItem("zelar_atendimento", JSON.stringify({
-              tipo, servico, endereco, preco,
-              profissional: selecionado.nome,
-              profissional_id: selecionado.id,
-              profissional_categoria: selecionado.categoria,
-              profissional_conselho: selecionado.conselho,
-              cidade: "Avaré",
-              estado: "SP",
-              status: "SOLICITADO",
-              data: new Date().toISOString()
-            }));
-          } catch(e) {}
-
-          if (detalheSucesso) {
-            detalheSucesso.innerHTML =
-              `<strong>${selecionado.nome}</strong> foi acionad${selecionado.avatar === "👩‍⚕️" ? "a" : "o"} para<br><strong>${servico}</strong><br>📍 ${endereco} · Avaré, SP`;
-          }
-          if (modalSucesso) modalSucesso.classList.add("visivel");
-        });
-      }
-
-      // Botão concluir
-      if (btnConcluir) {
-        btnConcluir.addEventListener("click", () => {
-          try { ZC.ir("../3-selecionar-atendimento/index.html"); }
-          catch(e) { window.location.href = "../3-selecionar-atendimento/index.html"; }
-        });
-      }
-
-      // Botão teleconsulta
-      if (btnTeleconsulta) {
-        btnTeleconsulta.addEventListener("click", () => {
-          // Redireciona para teleconsulta com os mesmos parâmetros
-          const urlParams = new URLSearchParams();
-          urlParams.set("tipo", tipo);
-          urlParams.set("servico", servico);
-          urlParams.set("modo", "video");
-          window.location.href = "./teleconsulta.html?" + urlParams.toString();
-        });
-      }
-
-      // Inicializa
-      montarMapa();
-      renderizarProfissionais();
-
-      // Estado inicial do botão
-      if (btnConfirmar) {
-        btnConfirmar.style.opacity = '0.5';
-        btnConfirmar.style.cursor = 'not-allowed';
-      }
-    })();
+    document.getElementById("btn-concluir").addEventListener("click", () => {
+      document.body.classList.add("fade-out");
+      setTimeout(() => (window.location.href = "../3-selecionar-atendimento/index.html"), 350);
+    });
   </script>
 </body>
 </html>

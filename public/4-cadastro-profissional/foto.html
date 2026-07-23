@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>ZELAR+ - Foto de Perfil</title>
-  <script type="module" crossorigin src="../assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
-  <script type="module" crossorigin src="../assets/cadastro-CzP_A_lC.js"></script>
-  <link rel="stylesheet" crossorigin href="../assets/global-DWT78tNl.css">
+  <link rel="stylesheet" href="../assets/css/global.css" />
   <style>
     .foto-preview {
       width: 140px;
@@ -22,37 +20,11 @@
       overflow: hidden;
       cursor: pointer;
       transition: var(--transicao);
-      position: relative;
     }
     .foto-preview:hover { border-color: var(--acento); }
     .foto-preview.preenchida { border-style: solid; border-color: var(--acento); }
     .foto-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .foto-preview .hint-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.6);
-      color: #fff;
-      font-size: 11px;
-      padding: 4px 0;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-    .foto-preview:hover .hint-overlay { opacity: 1; }
     #input-foto { display: none; }
-
-    /* Toast fallback */
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--vidro, rgba(30,60,114,0.9)); color: var(--texto, #fff); padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); opacity: 0; transition: all 0.3s ease; z-index: 9999; backdrop-filter: blur(10px); font-size: 14px; }
-    .toast.visivel { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* Animação de entrada */
-    @keyframes popIn {
-      0% { transform: scale(0.8); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .anim-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   </style>
 </head>
 <body>
@@ -75,8 +47,8 @@
       <h1>Foto de perfil</h1>
       <p class="descricao">Uma foto sua ajuda os pacientes a reconhecer você</p>
 
-      <div class="foto-preview" id="preview">📷<div class="hint-overlay">Toque para alterar</div></div>
-      <input type="file" id="input-foto" accept="image/*" capture="user" />
+      <div class="foto-preview" id="preview">📷</div>
+      <input type="file" id="input-foto" accept="image/*" />
 
       <p class="texto-suave centralizar" style="font-size:12px">Toque no círculo para escolher ou tirar uma foto</p>
 
@@ -90,141 +62,39 @@
 
   <div class="toast" id="toast"></div>
 
+  <script type="module" src="./js/cadastro.js"></script>
   <script>
-    // ============================================================
-    // FALLBACK: ZelarCadastro caso o JS externo não carregue
-    // ============================================================
-    const ZC = (typeof ZelarCadastro !== 'undefined') ? ZelarCadastro : {
-      ler: function() {
-        try { const d = localStorage.getItem('zelar_cadastro'); return d ? JSON.parse(d) : {}; }
-        catch(e) { return {}; }
-      },
-      salvar: function(obj) {
-        try { const a = this.ler(); localStorage.setItem('zelar_cadastro', JSON.stringify({...a, ...obj})); }
-        catch(e) {}
-      },
-      ir: function(url) {
-        document.body.classList.add('saindo');
-        setTimeout(() => { window.location.href = url; }, 300);
-      },
-      toast: function(msg, tipo) {
-        const t = document.getElementById('toast');
-        if (!t) return;
-        t.textContent = msg;
-        t.classList.add('visivel');
-        setTimeout(() => t.classList.remove('visivel'), 3000);
-      }
-    };
+    const preview = document.getElementById("preview");
+    const input = document.getElementById("input-foto");
 
-    // ============================================================
-    // LÓGICA PRINCIPAL
-    // ============================================================
-    (function() {
-      const preview = document.getElementById("preview");
-      const input = document.getElementById("input-foto");
-      const btnContinuar = document.getElementById("btn-continuar");
-      const btnVoltar = document.getElementById("btn-voltar");
-      const pular = document.getElementById("pular");
+    preview.addEventListener("click", () => input.click());
 
-      if (!preview || !input) return;
-
-      // Abre o seletor de arquivo ao clicar no preview
-      preview.addEventListener("click", () => input.click());
-
-      // Processa o arquivo selecionado
-      input.addEventListener("change", () => {
-        if (input.files && input.files[0]) {
-          const file = input.files[0];
-
-          // Valida tamanho (max 5MB para foto de perfil)
-          if (file.size > 5 * 1024 * 1024) {
-            ZC.toast('Foto muito grande! Máx: 5MB');
-            input.value = '';
-            return;
-          }
-
-          // Valida tipo
-          if (!file.type.startsWith('image/')) {
-            ZC.toast('Selecione uma imagem válida');
-            input.value = '';
-            return;
-          }
-
-          const leitor = new FileReader();
-          leitor.onload = (e) => {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.alt = 'Foto de perfil';
-            img.className = 'anim-pop';
-
-            // Limpa e adiciona a imagem + overlay
-            preview.innerHTML = '';
-            preview.appendChild(img);
-            const overlay = document.createElement('div');
-            overlay.className = 'hint-overlay';
-            overlay.textContent = 'Toque para alterar';
-            preview.appendChild(overlay);
-
-            preview.classList.add("preenchida");
-
-            try {
-              ZC.salvar({
-                foto_nome: file.name,
-                foto_preview: e.target.result.slice(0, 200000)
-              });
-            } catch(err) {}
-
-            ZC.toast("Foto adicionada! ✓");
-          };
-          leitor.onerror = () => {
-            ZC.toast('Erro ao ler a foto. Tente novamente.');
-          };
-          leitor.readAsDataURL(file);
-        }
-      });
-
-      // Restaura foto salva
-      try {
-        const salva = ZC.ler();
-        if (salva && salva.foto_preview && preview) {
-          const img = document.createElement('img');
-          img.src = salva.foto_preview;
-          img.alt = 'Foto de perfil';
-          preview.innerHTML = '';
-          preview.appendChild(img);
-          const overlay = document.createElement('div');
-          overlay.className = 'hint-overlay';
-          overlay.textContent = 'Toque para alterar';
-          preview.appendChild(overlay);
+    input.addEventListener("change", () => {
+      if (input.files && input.files[0]) {
+        const leitor = new FileReader();
+        leitor.onload = (e) => {
+          preview.innerHTML = `<img src="${e.target.result}" alt="Foto de perfil" />`;
           preview.classList.add("preenchida");
-        }
-      } catch(e) {}
-
-      // Botão continuar
-      if (btnContinuar) {
-        btnContinuar.addEventListener("click", () => {
-          try { ZC.ir("./repasse.html"); }
-          catch(e) { window.location.href = "./repasse.html"; }
-        });
+          ZelarCadastro.salvar({ foto_nome: input.files[0].name, foto_preview: e.target.result.slice(0, 200000) });
+          ZelarCadastro.toast("Foto adicionada!", "sucesso");
+        };
+        leitor.readAsDataURL(input.files[0]);
       }
+    });
 
-      // Botão voltar
-      if (btnVoltar) {
-        btnVoltar.addEventListener("click", () => {
-          try { ZC.ir("./documentos.html"); }
-          catch(e) { window.location.href = "./documentos.html"; }
-        });
-      }
+    // Restaura foto salva
+    const salva = ZelarCadastro.ler();
+    if (salva.foto_preview) {
+      preview.innerHTML = `<img src="${salva.foto_preview}" alt="Foto de perfil" />`;
+      preview.classList.add("preenchida");
+    }
 
-      // Pular
-      if (pular) {
-        pular.addEventListener("click", (e) => {
-          e.preventDefault();
-          try { ZC.ir("./repasse.html"); }
-          catch(e) { window.location.href = "./repasse.html"; }
-        });
-      }
-    })();
+    document.getElementById("btn-continuar").addEventListener("click", () => ZelarCadastro.ir("./repasse.html"));
+    document.getElementById("btn-voltar").addEventListener("click", () => ZelarCadastro.ir("./documentos.html"));
+    document.getElementById("pular").addEventListener("click", (e) => {
+      e.preventDefault();
+      ZelarCadastro.ir("./repasse.html");
+    });
   </script>
 </body>
 </html>
